@@ -1,6 +1,7 @@
 import React from "react";
 import axios from 'axios';
 import {Table,Button} from 'react-bootstrap';
+import { withRouter } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Summary extends React.Component {
@@ -16,17 +17,11 @@ class Summary extends React.Component {
         axios
             .get('http://localhost:8080/summary')
             .then((response) => {
-             //   console.log(response);
-                this.setState({weekSummary:response.data, showSummary:response.data.slice(0,1)});
+                this.setState({weekSummary:response.data,showSummary:response.data.slice(0,1)});
             })
             .catch((error) => {
                 console.log(error);
             });
-    }
-
-    handleViewAndEdit(index){
-        console.log('summary index: ', index);
-        this.props.history.push('/timeSheet');
     }
 
     handleShowMore = () =>{
@@ -35,6 +30,15 @@ class Summary extends React.Component {
 
     handleShowLess = () =>{
         this.setState({showSummary : this.state.weekSummary.slice(0,1)});
+    }
+
+    handleViewAndEdit(index){
+        console.log('summary index: ', index);
+        this.props.history.push('/timeSheet',{weekEnding: this.state.weekSummary[index].weekEnding,approvalStatus:this.state.weekSummary[index].approvalStatus});
+    }
+
+    updateWeekSummary = (updatedSummary) =>{
+        this.setState({weekSummary:updatedSummary});
     }
 
     render() {
@@ -77,4 +81,4 @@ class Summary extends React.Component {
     }
 }
 
-export default Summary;
+export default withRouter(Summary);

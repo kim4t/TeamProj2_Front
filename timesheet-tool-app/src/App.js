@@ -8,8 +8,7 @@ import Profile from './components/profile/Profile';
 import TimeSheet from './components/TimeSheet';
 import Login from './components/login';
 
-class App extends React.Component{
-  render(){
+function App(){
     return (
       <div>
         <Navigation />
@@ -24,6 +23,5 @@ class App extends React.Component{
         </BrowserRouter>
       </div>
     )
-  }
 }
 export default App;
