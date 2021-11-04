@@ -9,6 +9,7 @@ import Paper from '@mui/material/Paper';
 
 import Button from '@mui/material/Button';
 import './table.css'
+import TimeSheet from './TimeSheet';
 //need to do npm install @mui/material @emotion/react @emotion/styled
 
 const {useState} = require("react");
@@ -29,7 +30,8 @@ function createData(name, date, starttime, endtime, totaltime, floatingday, holi
 
 
 
-export default function TimeSheetTable() {
+export default function TimeSheetTable({selectedWeek}) {
+
     const [floatCount, setFloatCount] = useState(0);
     //const [holidayCount, setHolidayCount] = useState(0);
     const [vacationCount, setvacationCount] = useState(0);
@@ -37,20 +39,27 @@ export default function TimeSheetTable() {
     //const [disableFloating, setdisableFloating] = useState(false);
     const [totalBilling, setTotalBilling] = useState(0);
     const [totalCompensated, setTotalCompensated] = useState(0);
+    const [chosenWeek, setChosenWeek] = useState({selectedWeek});
 
    // const [floatCount, setFloatCount] = useState(0);
 
     //this will be obtained from the backend
     const [rows, setRows] = useState([
-        createData('Sunday', '11-07-2021', 'N/A', 'N/A', 0, false, false, false),
-        createData('Monday', '11-06-2021', 'N/A', 'N/A', 0, false, false, false),
-        createData('Tuesday', '11-05-2021', 'N/A', 'N/A', 0, false, false, false),
-        createData('Wednesday', '11-04-2021', 'N/A', 'N/A', 0, false, false, false),
-        createData('Thursday', '11-03-2021', 'N/A', 'N/A', 0, false, false, false),
-        createData('Friday', '11-02-2021', 'N/A', 'N/A', 0, false, false, false),
-        createData('Saturday', '11-01-2021', 'N/A', 'N/A', 0, false, false, false),
+        createData('Sunday', selectedWeek.split(",")[0], 'N/A', 'N/A', 0, false, false, false),
+        createData('Monday', selectedWeek.split(",")[1], 'N/A', 'N/A', 0, false, false, false),
+        createData('Tuesday', selectedWeek.split(",")[2], 'N/A', 'N/A', 0, false, false, false),
+        createData('Wednesday', selectedWeek.split(",")[3], 'N/A', 'N/A', 0, false, false, false),
+        createData('Thursday', selectedWeek.split(",")[4], 'N/A', 'N/A', 0, false, false, false),
+        createData('Friday', selectedWeek.split(",")[5], 'N/A', 'N/A', 0, false, false, false),
+        createData('Saturday', selectedWeek.split(",")[6], 'N/A', 'N/A', 0, false, false, false),
       ]);
 
+    // React.useEffect(() => { 
+    //     console.log("component updated"); 
+        
+    // });
+
+ 
  const changeStartTime = index => event => {
     //console.log(event.target.value); 
     let newArr = [...rows]; //copy of our table
@@ -78,12 +87,14 @@ const changeFloat = index => event => {
         newArr[index].endtime = "N/A";
         newArr[index].totaltime = 0;
         setTotalBilling(totalBilling - prevTotal);
-        setvacationCount(vacationCount +  1);
+    
         setTotalCompensated(totalCompensated + 8 - prevTotal);
 
     } else {
         newArr[index].floatingday = false;
+
         setFloatCount(floatCount - 1);
+     
         setTotalCompensated(totalCompensated - 8);
     }
     setRows(newArr);
@@ -132,6 +143,11 @@ const changeVacation = index => event => {
     console.log("vacation =", newArr[index].vacation);
 }
 
+function saveWeek(event) {
+    event.stopPropagation();
+    console.log(rows);
+}
+
 const changeEndTime = index => event => {
    // console.log(event.target.value);
     let newArr = [...rows]; //copy of our table
@@ -146,9 +162,8 @@ const changeEndTime = index => event => {
 }
 
     return (
-        
-<TableContainer component={Paper}>
-    
+    <React.Fragment>
+    <TableContainer component={Paper}>
       <Table aria-label="simple table">
         <TableHead>
           <TableRow>
@@ -252,5 +267,7 @@ const changeEndTime = index => event => {
       <br></br>
       {totalCompensated}
     </TableContainer>
-    );
+    <Button style={{float: "right"}} variant="outlined" onClick = {saveWeek}>Save</Button>
+    {selectedWeek}
+    </React.Fragment>);
 }
