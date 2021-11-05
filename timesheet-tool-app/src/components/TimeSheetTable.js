@@ -103,28 +103,9 @@ const changeFloat = index => event => {
     setRows(newArr);
 
     console.log("floating day =", newArr[index].floatingDay);
-    //printLeaves()
+
 }
 
-// function printLeaves() {
-//     console.log("floating count =", floatCount);
-//     console.log("holiday count =", holidayCount);
-//     console.log("vacation count =", vacationCount);
-
-// }
-
-// const changeHoliday = index => event => {
-//     let newArr = [...rows];//copy of our table
-//     if (newArr[index].holiday === false) {
-//         newArr[index].holiday = true;
-//         setHolidayCount(holidayCount + 1);
-//     } else {
-//         newArr[index].holiday = false;
-//         setHolidayCount(holidayCount - 1);
-//     }
-//     setRows(newArr);
-//     console.log("holiday =", newArr[index].holiday);
-// }
 
 const changeVacation = index => event => {
     let newArr = [...rows];//copy of our table
@@ -163,29 +144,15 @@ function saveWeek(event) {
 const axios = require('axios');
 
 function getDatafromDB() {
-    var userName = "user"
+    var userName = "usexxr"
     const config = {
         headers: {"Access-Control-Allow-Origin": "*"},
         params: {weekEnding: "31 March 2018"}
     }
     const res = axios.get('http://localhost:8080/api/timeSheet/' + userName, config)
                 .then(data => setTimeTable(data.data));
-                
-   // console.log(timeTable);
-    /*
-    var weekEnding = "31 March 2018";
-    var userName = "user";
-    
-    const specs = {
-        method: 'GET',
-       /* headers: {'Content-Type' : 'application/json',
-        "Access-Control-Allow-Origin": "*"} */
-   //     body: JSON.stringify({weekEnding: "31 March 2018", userName: "user"})
-    //}; 
-     //fetch('http://localhost:8080/api/timeSheet', specs)
-     //.then(response => response.json())
-     //.then(data => setTimeTable({ totalReactPackages: data.total }));
-     
+    return timeTable;
+   
 }
 
 
@@ -194,13 +161,39 @@ function loadWeek(event) {
    // console.log("asdasdasd", props.loadWeek());
     setChosenWeek(props.loadWeek());
     var weekArr = chosenWeek.split(",");
+
+    var dataFetched = getDatafromDB();
+    if (!dataFetched) {
+        //create new table function
+        generateNewTable(weekArr);
+    } else {
+        console.log(timeTable);
+        generateTableFromDB(timeTable);
+    }
+
+}
+
+function generateTableFromDB(timeTable) {
+
+}
+
+function generateNewTable(weekArr) {
     let newArr = [...rows];
+    console.log('xxxx');
     for (let i = 0; i < 7; i++) {{
         newArr[i].date = weekArr[i];
+        newArr[i].starttime = "N/A";
+        newArr[i].endtime = "N/A";
+        newArr[i].totaltime = 0;
+        newArr[i].floatingDay = false;
+        newArr[i].holiday = false;
+        newArr[i].vaccation = false;
     }}
     setRows(newArr);
-    getDatafromDB();
-    console.log(timeTable);
+    //uncheck all rows
+    setTotalBilling(0);
+    setTotalCompensated(0);
+    console.log(newArr);
 }
 
 const changeEndTime = index => event => {
