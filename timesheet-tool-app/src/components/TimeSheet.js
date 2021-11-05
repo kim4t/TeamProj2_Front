@@ -95,9 +95,7 @@ export default function TimeSheet(props) {
             </label>
 
             </div>
-            <br></br>
-            <Button style={{float: "right"}} variant="outlined">Set Default</Button>
-            <br></br>
+
         </div>
         <TimeSheetTable selectedWeek = {selectedWeek}
             totalBillingUpdate = {saveTotalBilling}

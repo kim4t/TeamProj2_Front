@@ -1,11 +1,12 @@
 import * as React from 'react';
 import Table from '@mui/material/Table';
 import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
+import TableCell, {tableCellClasses} from '@mui/material/TableCell';
 import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import { styled } from '@mui/material/styles';
 
 import Button from '@mui/material/Button';
 import TimeSheet from './TimeSheet';
@@ -28,10 +29,9 @@ export default function TimeSheetTable(props) {
     const [totalCompensated, setTotalCompensated] = useState(0);
     const [chosenWeek, setChosenWeek] = useState(props.selectedWeek);
 
-    const [timeTable, setTimeTable] = useState();
+    //const [timeTable, setTimeTable] = useState();
 
     const [tableId, setTableID] = useState();
-    const [timeSheet, setTimeSheet] = useState();
     const [userName, setUserName] = useState(localStorage.getItem("user"));
     const [filePath, setFilePath] = useState();
     
@@ -40,12 +40,12 @@ export default function TimeSheetTable(props) {
     //this will be obtained from the backend
     
     const [rows, setRows] = useState([
-        createData('Sunday', "", 'N/A', 'N/A', 0, false, false, false),
-        createData('Monday', "", 'N/A', 'N/A', 0, false, false, false),
-        createData('Tuesday', "", 'N/A', 'N/A', 0, false, false, false),
-        createData('Wednesday', "", 'N/A', 'N/A', 0, false, false, false),
-        createData('Thursday', "", 'N/A', 'N/A', 0, false, false, false),
-        createData('Friday', "", 'N/A', 'N/A', 0, false, false, false),
+        createData('Sunday', "", "N/A", "N/A", 0, false, false, false),
+        createData('Monday', "", 8, 5, 0, false, false, false),
+        createData('Tuesday', "", 8, 5, 0, false, false, false),
+        createData('Wednesday', "", 8, 5, 0, false, false, false),
+        createData('Thursday', "", 8, 5, 0, false, false, false),
+        createData('Friday', "", 8, 5, 0, false, false, false),
         createData('Saturday', "", 'N/A', 'N/A', 0, false, false, false),
       ]);
 
@@ -159,67 +159,64 @@ function saveWeek(event) {
         .then(response => response.json())
  
     console.log(submissionObj);
+    console.log("POST to http://localhost:8080/api/timeSheet");
 }
 
 
 const axios = require('axios');
 
 function getDatafromDB(chosenSunday) {
-    console.log("getting data from DB...")
-    console.log(chosenSunday);
+    console.log("GET from http://localhost:8080/api/timeSheet");
     var user = userName;
     const config = {
         headers: {"Access-Control-Allow-Origin": "*"},
         params: {weekEnding: chosenSunday}
     }
     const res = axios.get('http://localhost:8080/api/timeSheet/' + user, config)
-                .then(data => setTimeTable(data.data));
-    return timeTable;
+                .then(data => generateTableFromDB(data.data));                
+    //return timeTable;
    
 }
 
 
+
+
 function loadWeek(event) {
     event.stopPropagation();
-   // console.log("asdasdasd", props.loadWeek());
-    setChosenWeek(chosenWeek => props.selectedWeek);
-    //console.log(chosenWeek);
-    if(chosenWeek) { 
-        console.log("chosen week: ", chosenWeek);
-        var dataFetched = getDatafromDB(chosenWeek.split(',')[0]);
-        if (dataFetched) {
-            if (dataFetched.weekEnding === chosenWeek.split(",")[0]){
-                console.log(timeTable);
-                if (timeTable) {
-                    generateTableFromDB(timeTable);
-                }
-            }
-        }
+    if (!props.selectedWeek) {
+        chosenSunday = "11-7-2021";
+    } else {
+        var chosenSunday = props.selectedWeek.split(',')[0];
     }
-   /* if (!dataFetched) {
-        //create new table function
-        generateNewTable(weekArr);
-    } else { */
-  //  }
+    setChosenWeek(chosenSunday);
+    getDatafromDB(chosenSunday);
+
 
 }
 
 function generateTableFromDB(timeTable) {
-    setTableID(tableId => timeTable.id);
-    setTimeSheet(timeSheet => timeTable.timeSheet);
-    setFilePath(filePath => timeTable.filePath);
-    console.log(tableId);
-    
+    console.log(timeTable);
+    setTableID(timeTable.id);
+    setFilePath(timeTable.filePath);
+    setRows(timeTable.timeSheet);
+
     //generates blank table
+   /* 
     if(timeSheet) {
         if (timeSheet[0].date === ""){
             generateNewTable(chosenWeek.split(","));
         } else {
             //populateTable(timeSheet);
-            setRows(rows => timeSheet);
-        }
+            setRows(timeSheet);
+        } 
+    } 
+ */
+    var totalBill = 0;
+    for(let i = 0; i < 7; i++) {
+        totalBill += timeTable.timeSheet[i].totaltime;
     }
-
+    setTotalBilling(totalBill);
+    props.totalBillingUpdate(totalBill);
 
     setTotalCompensated(timeTable.compensatedHours);
     props.totalCompensatedUpdate(timeTable.compensatedHours);
@@ -269,21 +266,37 @@ const changeEndTime = index => event => {
     props.totalCompensatedUpdate(totalComp);
 }
 
+    const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+      backgroundColor: "#42a5f5",
+      color: theme.palette.common.white,
+    },
+    [`&.${tableCellClasses.body}`]: {
+      fontSize: 14,
+    },
+  }));
+
     return (
     <React.Fragment>
-    <Button style={{float: "left"}} variant="outlined"  onClick = {loadWeek}>Load Table</Button>
-    <TableContainer component={Paper}>
-      <Table aria-label="simple table" style={{borderTop:10, borderLeft:10}}>
+    <br></br>
+    <div style={{fontWeight: 'bold', display: 'flex', justifyContent: 'space-evenly'}}>
+    <Button  variant="outlined"  onClick = {loadWeek}>Load Table</Button>
+    <Button style={{float: "right"}} variant="outlined">Set Default</Button>
+    </div>
+    <br></br>
+    <br></br>
+    <TableContainer component={Paper} style={{width: '80%',  display: 'flex', transform: 'translateX(-50%)', left: '50%', position:'relative'}}>
+      <Table>
         <TableHead>
           <TableRow>
-            <TableCell style ={{fontWeight: 'bold'}} >Day</TableCell>
-            <TableCell style ={{fontWeight: 'bold'}} >Date</TableCell>
-            <TableCell style ={{fontWeight: 'bold'}} >Start Time</TableCell>
-            <TableCell style ={{fontWeight: 'bold'}} >End Time</TableCell>
-            <TableCell style ={{fontWeight: 'bold'}} >Total Hours</TableCell>
-            <TableCell style ={{fontWeight: 'bold'}} >Floating Day</TableCell>
-            <TableCell style ={{fontWeight: 'bold'}} >Holiday</TableCell>
-            <TableCell style ={{fontWeight: 'bold'}} >Vacation</TableCell>
+            <StyledTableCell style ={{fontWeight: 'bold'}} >Day</StyledTableCell>
+            <StyledTableCell style ={{fontWeight: 'bold'}} >Date</StyledTableCell>
+            <StyledTableCell style ={{fontWeight: 'bold'}} >Start Time</StyledTableCell>
+            <StyledTableCell style ={{fontWeight: 'bold'}} >End Time</StyledTableCell>
+            <StyledTableCell style ={{fontWeight: 'bold'}} >Total Hours</StyledTableCell>
+            <StyledTableCell style ={{fontWeight: 'bold'}} >Floating Day</StyledTableCell>
+            <StyledTableCell style ={{fontWeight: 'bold'}} >Holiday</StyledTableCell>
+            <StyledTableCell style ={{fontWeight: 'bold'}} >Vacation</StyledTableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -292,14 +305,14 @@ const changeEndTime = index => event => {
               key={row.day}
             //   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-              <TableCell component="th" scope="row">
+              <StyledTableCell component="th" scope="row">
                 {row.day}
-              </TableCell>
-              <TableCell>{row.date}</TableCell>
+              </StyledTableCell>
+              <StyledTableCell>{row.date}</StyledTableCell>
               
-              <TableCell>
+              <StyledTableCell>
               <select name="starttime" id="starttime" onChange={changeStartTime(i)}
-                >
+                value={row.starttime}>
                 <option value= "0">12:00 AM</option>
                 <option value= "1">1:00 AM</option>
                 <option value= "2">2:00 AM</option>
@@ -325,14 +338,12 @@ const changeEndTime = index => event => {
                 <option value= "22">10:00 PM</option>
                 <option value= "23">11:00 PM</option>
                 <option value= "N/A">N/A</option>
-            </select>
-            {row.starttime}
-              
-              </TableCell>
+            </select>              
+              </StyledTableCell>
               {/* <TableCell align="right">{row.carbs}</TableCell> */}
-              <TableCell>
+              <StyledTableCell>
               <select name="endtime" id="endtime" onChange={changeEndTime(i)}
-                >
+                value={row.endtime}>
                 <option value= "0">12:00 AM</option>
                 <option value= "1">1:00 AM</option>
                 <option value= "2">2:00 AM</option>
@@ -349,7 +360,7 @@ const changeEndTime = index => event => {
                 <option value= "13">1:00 PM</option>
                 <option value= "14">2:00 PM</option>
                 <option value= "15">3:00 PM</option>
-                <option value= "16">4:00 PM</option>
+                <option value= "16" >4:00 PM</option>
                 <option value= "17">5:00 PM</option>
                 <option value= "18">6:00 PM</option>
                 <option value= "19">7:00 PM</option>
@@ -359,19 +370,19 @@ const changeEndTime = index => event => {
                 <option value= "23">11:00 PM</option>
                 <option value= "N/A">N/A</option>
             </select>
-            {row.endtime}
-            </TableCell>
-              <TableCell>{row.totaltime}</TableCell>
+            
+            </StyledTableCell>
+              <StyledTableCell>{row.totaltime}</StyledTableCell>
 
-              <TableCell><input type="checkbox" name="floatingday" value="floatingday" onChange={changeFloat(i)} disabled={(row.vacation || floatCount >= 3 || vacationCount >= 2)}/>
+              <StyledTableCell><input type="checkbox" name="floatingday" value="floatingday" onChange={changeFloat(i)} checked={row.floatingDay} disabled={(row.vaccation || floatCount >= 3 || vacationCount >= 2)}/>
               
-              </TableCell>
+              </StyledTableCell>
 
-              <TableCell><input type="checkbox" name="holiday" value="holiday" disabled ={true}/>
-              </TableCell>
+              <StyledTableCell><input type="checkbox" name="holiday" value="holiday" disabled ={true}/>
+              </StyledTableCell>
 
-              <TableCell><input type="checkbox" name="vacation" value="vacation" onChange={changeVacation(i)} disabled={row.floatingDay || floatCount >= 3 || vacationCount >= 2}/>
-              </TableCell>
+              <StyledTableCell><input type="checkbox" name="vacation" value="vacation" onChange={changeVacation(i)} checked={row.vaccation} disabled={row.floatingDay || floatCount >= 3 || vacationCount >= 2}/>
+              </StyledTableCell>
             </TableRow>
           ))}
         </TableBody>
@@ -379,15 +390,19 @@ const changeEndTime = index => event => {
   
     </TableContainer>
     <br></br>
-    <Button style={{float: "right"}} variant="outlined" onClick = {saveWeek}>Save</Button>
-    {/* {props.selectedWeek} */}
-    <br></br>
-    <div>
+    
+    <div style={{fontWeight: 'bold', display: 'flex', justifyContent: 'space-evenly'}}>
+    <div >
     <select name="endtime" id="endtime" >
             <option value= "Approved">Approved Timesheet</option>
             <option value= "Unapproved">Unapproved Timesheet</option>
     </select>
     <input type="file" />
+    </div>
+    <Button style={{float: "right"}} variant="outlined" onClick = {saveWeek}>Save</Button>
+    {/* {props.selectedWeek} */}
+    <br></br>
+    
     </div>
     </React.Fragment>);
 }
