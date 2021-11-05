@@ -11,6 +11,7 @@ const theme = createTheme();
 
 const {useState} = require("react");
 export default function Login() {
+
     const [response, setResponse] = useState();
     let history = useHistory();
 
@@ -24,6 +25,8 @@ export default function Login() {
         login(data);
         if (response) {
             localStorage.setItem("user", response.userName);
+            localStorage.setItem("token", response.token);
+            localStorage.setItem("status", response.status);
             console.log(response);
             history.push("/")
         }

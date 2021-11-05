@@ -17,25 +17,23 @@ export default function TimeSheet(props) {
 
     const [totalBilling, setTotalBilling] = useState();
     const [totalCompensated, setTotalCompensated] = useState();
-    const [selectedWeek, setSelectedWeek] = useState("11-7-2021,11-6-2021,11-5-2021,11-4-2021,11-3-2021,11-2-2021,11-1-2021");
+    const [selectedWeek, setSelectedWeek] = useState();
 
 
 
     const selectWeek = event => {
         setSelectedWeek(event.target.value);
 
-        console.log(event.target.value);
+        console.log("selected week: ", event.target.value);
     
         var lastDayofWeek = new Date(event.target.value);
 
         setSelectedWeek(Last7Days(lastDayofWeek));
-        console.log(Last7Days(lastDayofWeek));
+        //console.log(Last7Days(lastDayofWeek));
 
     }
 
-    function loadWeek(){
-        return selectedWeek;
-    }
+
 
 
     const saveTotalCompensated = (value) => {
@@ -82,7 +80,7 @@ export default function TimeSheet(props) {
             <div style={{fontWeight: 'bold', display: 'flex', justifyContent: 'space-evenly'}}>
             <label>Week Ending: &nbsp;
                 <select name="date" id="date" onChange={selectWeek}>
-                    <option value="11-07-2021">11-07-2021</option>
+                    <option value="11-7-2021">11-07-2021</option>
                     <option value="10-31-2021">10-31-2021</option>
                     <option value="10-24-2021">10-24-2021</option>
                     <option value="10-17-2021">10-17-2021</option>
@@ -102,7 +100,6 @@ export default function TimeSheet(props) {
             <br></br>
         </div>
         <TimeSheetTable selectedWeek = {selectedWeek}
-            loadWeek = {loadWeek}
             totalBillingUpdate = {saveTotalBilling}
             totalCompensatedUpdate = {saveTotalCompensated}/>
         </React.Fragment>

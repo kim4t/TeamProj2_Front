@@ -40,13 +40,13 @@ export default function TimeSheetTable(props) {
     //this will be obtained from the backend
     
     const [rows, setRows] = useState([
-        createData('Sunday', chosenWeek.split(",")[0], 'N/A', 'N/A', 0, false, false, false),
-        createData('Monday', chosenWeek.split(",")[1], 'N/A', 'N/A', 0, false, false, false),
-        createData('Tuesday', chosenWeek.split(",")[2], 'N/A', 'N/A', 0, false, false, false),
-        createData('Wednesday', chosenWeek.split(",")[3], 'N/A', 'N/A', 0, false, false, false),
-        createData('Thursday', chosenWeek.split(",")[4], 'N/A', 'N/A', 0, false, false, false),
-        createData('Friday', chosenWeek.split(",")[5], 'N/A', 'N/A', 0, false, false, false),
-        createData('Saturday', chosenWeek.split(",")[6], 'N/A', 'N/A', 0, false, false, false),
+        createData('Sunday', "", 'N/A', 'N/A', 0, false, false, false),
+        createData('Monday', "", 'N/A', 'N/A', 0, false, false, false),
+        createData('Tuesday', "", 'N/A', 'N/A', 0, false, false, false),
+        createData('Wednesday', "", 'N/A', 'N/A', 0, false, false, false),
+        createData('Thursday', "", 'N/A', 'N/A', 0, false, false, false),
+        createData('Friday', "", 'N/A', 'N/A', 0, false, false, false),
+        createData('Saturday', "", 'N/A', 'N/A', 0, false, false, false),
       ]);
 
 
@@ -142,12 +142,12 @@ function saveWeek(event) {
     event.stopPropagation();
     var timeSheet = rows;
     var id = tableId;
-    var file = filePath;
+    var filePath = filePath;
     var weekEnding = chosenWeek.split(',')[0];
     var user = userName;
     var compensatedHours = totalCompensated;
 
-    var submissionObj = {id, file, weekEnding, timeSheet, user, compensatedHours};
+    var submissionObj = {id, filePath, weekEnding, timeSheet, user, compensatedHours};
 
     const specs = {
         method: 'POST',
@@ -164,8 +164,8 @@ function saveWeek(event) {
 
 const axios = require('axios');
 
-function getDatafromDB() {
-    var chosenSunday = chosenWeek.split(',')[0];
+function getDatafromDB(chosenSunday) {
+    console.log("getting data from DB...")
     console.log(chosenSunday);
     var user = userName;
     const config = {
@@ -182,34 +182,41 @@ function getDatafromDB() {
 function loadWeek(event) {
     event.stopPropagation();
    // console.log("asdasdasd", props.loadWeek());
-    setChosenWeek(props.loadWeek());
-    var weekArr = chosenWeek.split(",");
-
-    var dataFetched = getDatafromDB();
+    setChosenWeek(chosenWeek => props.selectedWeek);
+    //console.log(chosenWeek);
+    if(chosenWeek) { 
+        console.log("chosen week: ", chosenWeek);
+        var dataFetched = getDatafromDB(chosenWeek.split(',')[0]);
+        if (dataFetched) {
+            if (dataFetched.weekEnding === chosenWeek.split(",")[0]){
+                console.log(timeTable);
+                if (timeTable) {
+                    generateTableFromDB(timeTable);
+                }
+            }
+        }
+    }
    /* if (!dataFetched) {
         //create new table function
         generateNewTable(weekArr);
     } else { */
-    if (dataFetched) {
-        console.log(timeTable);
-        generateTableFromDB(timeTable);
-    }
   //  }
 
 }
 
 function generateTableFromDB(timeTable) {
-    setTableID(timeTable.id);
-    setTimeSheet(timeTable.timeSheet);
-    setFilePath(timeTable.filePath);
+    setTableID(tableId => timeTable.id);
+    setTimeSheet(timeSheet => timeTable.timeSheet);
+    setFilePath(filePath => timeTable.filePath);
     console.log(tableId);
+    
     //generates blank table
     if(timeSheet) {
         if (timeSheet[0].date === ""){
             generateNewTable(chosenWeek.split(","));
         } else {
             //populateTable(timeSheet);
-            setRows(timeSheet);
+            setRows(rows => timeSheet);
         }
     }
 
@@ -292,7 +299,7 @@ const changeEndTime = index => event => {
               
               <TableCell>
               <select name="starttime" id="starttime" onChange={changeStartTime(i)}
-                defaultValue ="8">
+                >
                 <option value= "0">12:00 AM</option>
                 <option value= "1">1:00 AM</option>
                 <option value= "2">2:00 AM</option>
@@ -317,6 +324,7 @@ const changeEndTime = index => event => {
                 <option value= "21">9:00 PM</option>
                 <option value= "22">10:00 PM</option>
                 <option value= "23">11:00 PM</option>
+                <option value= "N/A">N/A</option>
             </select>
             {row.starttime}
               
@@ -324,7 +332,7 @@ const changeEndTime = index => event => {
               {/* <TableCell align="right">{row.carbs}</TableCell> */}
               <TableCell>
               <select name="endtime" id="endtime" onChange={changeEndTime(i)}
-                defaultValue ="5">
+                >
                 <option value= "0">12:00 AM</option>
                 <option value= "1">1:00 AM</option>
                 <option value= "2">2:00 AM</option>
@@ -349,6 +357,7 @@ const changeEndTime = index => event => {
                 <option value= "21">9:00 PM</option>
                 <option value= "22">10:00 PM</option>
                 <option value= "23">11:00 PM</option>
+                <option value= "N/A">N/A</option>
             </select>
             {row.endtime}
             </TableCell>
