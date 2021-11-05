@@ -10,17 +10,20 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 const theme = createTheme();
 
-export default function login() {
+const {useState} = require("react");
+export default function Login() {
+    const [response, setResponse] = useState();
 
     const submit = (event) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        
+        const data = new FormData(event.currentTarget);        
         /*console.log({
           email: data.get('email'),
           password: data.get('password'),
         }); */
         login(data);
+        console.log(response);
+        localStorage.setItem("user", response.userName);
       };
 
     function login(data) {
@@ -32,11 +35,12 @@ export default function login() {
             method: 'POST',
             headers: {'Content-Type' : 'application/json',
             "Access-Control-Allow-Origin": "*"},
-            body: JSON.stringify({username: email, password: pass})
+            body: JSON.stringify({userName: email, password: pass})
         };
         fetch("http://localhost:8080/api/auth", specs)
-            .then(response => response.json());
-        
+            .then(response => response.json())
+            .then(data => setResponse(data));
+     
     }
     return(
         <ThemeProvider theme={theme}>

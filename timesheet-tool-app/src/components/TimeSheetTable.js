@@ -13,11 +13,9 @@ import TimeSheet from './TimeSheet';
 //need to do npm install @mui/material @emotion/react @emotion/styled
 
 const {useState} = require("react");
-function createData(name, date, starttime, endtime, totaltime, floatingday, holiday, vacation) {
-    return { name, date, starttime, endtime, totaltime, floatingday, holiday, vacation};
+function createData(day, date, starttime, endtime, totaltime, floatingDay, holiday, vaccation) {
+    return {day, date, starttime, endtime, totaltime, floatingDay, holiday, vaccation};
 }
-
-
 
 //   handleItemChanged(i, event){
 //     var items = this.state.items;
@@ -30,7 +28,7 @@ function createData(name, date, starttime, endtime, totaltime, floatingday, holi
 
 
 
-export default function TimeSheetTable({selectedWeek}) {
+export default function TimeSheetTable(props) {
 
     const [floatCount, setFloatCount] = useState(0);
     //const [holidayCount, setHolidayCount] = useState(0);
@@ -39,20 +37,25 @@ export default function TimeSheetTable({selectedWeek}) {
     //const [disableFloating, setdisableFloating] = useState(false);
     const [totalBilling, setTotalBilling] = useState(0);
     const [totalCompensated, setTotalCompensated] = useState(0);
-    const [chosenWeek, setChosenWeek] = useState({selectedWeek});
+    const [chosenWeek, setChosenWeek] = useState(props.selectedWeek);
 
+    const [timeTable, setTimeTable] = useState();
+    
    // const [floatCount, setFloatCount] = useState(0);
 
     //this will be obtained from the backend
+    
     const [rows, setRows] = useState([
-        createData('Sunday', selectedWeek.split(",")[0], 'N/A', 'N/A', 0, false, false, false),
-        createData('Monday', selectedWeek.split(",")[1], 'N/A', 'N/A', 0, false, false, false),
-        createData('Tuesday', selectedWeek.split(",")[2], 'N/A', 'N/A', 0, false, false, false),
-        createData('Wednesday', selectedWeek.split(",")[3], 'N/A', 'N/A', 0, false, false, false),
-        createData('Thursday', selectedWeek.split(",")[4], 'N/A', 'N/A', 0, false, false, false),
-        createData('Friday', selectedWeek.split(",")[5], 'N/A', 'N/A', 0, false, false, false),
-        createData('Saturday', selectedWeek.split(",")[6], 'N/A', 'N/A', 0, false, false, false),
+        createData('Sunday', chosenWeek.split(",")[0], 'N/A', 'N/A', 0, false, false, false),
+        createData('Monday', chosenWeek.split(",")[1], 'N/A', 'N/A', 0, false, false, false),
+        createData('Tuesday', chosenWeek.split(",")[2], 'N/A', 'N/A', 0, false, false, false),
+        createData('Wednesday', chosenWeek.split(",")[3], 'N/A', 'N/A', 0, false, false, false),
+        createData('Thursday', chosenWeek.split(",")[4], 'N/A', 'N/A', 0, false, false, false),
+        createData('Friday', chosenWeek.split(",")[5], 'N/A', 'N/A', 0, false, false, false),
+        createData('Saturday', chosenWeek.split(",")[6], 'N/A', 'N/A', 0, false, false, false),
       ]);
+
+
 
     // React.useEffect(() => { 
     //     console.log("component updated"); 
@@ -79,9 +82,9 @@ export default function TimeSheetTable({selectedWeek}) {
 const changeFloat = index => event => {
 
     let newArr = [...rows];//copy of our table
-    if (newArr[index].floatingday === false) {
+    if (newArr[index].floatingDay === false) {
         let prevTotal = newArr[index].totaltime;
-        newArr[index].floatingday = true;
+        newArr[index].floatingDay = true;
         setFloatCount(floatCount + 1);
         newArr[index].starttime = "N/A";
         newArr[index].endtime = "N/A";
@@ -91,7 +94,7 @@ const changeFloat = index => event => {
         setTotalCompensated(totalCompensated + 8 - prevTotal);
 
     } else {
-        newArr[index].floatingday = false;
+        newArr[index].floatingDay = false;
 
         setFloatCount(floatCount - 1);
      
@@ -99,7 +102,7 @@ const changeFloat = index => event => {
     }
     setRows(newArr);
 
-    console.log("floating day =", newArr[index].floatingday);
+    console.log("floating day =", newArr[index].floatingDay);
     //printLeaves()
 }
 
@@ -125,9 +128,9 @@ const changeFloat = index => event => {
 
 const changeVacation = index => event => {
     let newArr = [...rows];//copy of our table
-    if (newArr[index].vacation === false) {
+    if (newArr[index].vaccation === false) {
         let prevTotal = newArr[index].totaltime;
-        newArr[index].vacation = true;
+        newArr[index].vaccation = true;
         newArr[index].starttime = "N/A";
         newArr[index].endtime = "N/A";
         newArr[index].totaltime = 0;
@@ -135,17 +138,69 @@ const changeVacation = index => event => {
         setvacationCount(vacationCount +  1);
         setTotalCompensated(totalCompensated + 8 - prevTotal);
     } else {
-        newArr[index].vacation = false;
+        newArr[index].vaccation = false;
         setvacationCount(vacationCount -  1);
         setTotalCompensated(totalCompensated - 8);
     }
     setRows(newArr);
-    console.log("vacation =", newArr[index].vacation);
+    console.log("vacation =", newArr[index].vaccation);
 }
 
 function saveWeek(event) {
     event.stopPropagation();
-    console.log(rows);
+    var timeSheet = rows;
+    var id = "";
+    var filePath = "";
+    var weekEnding = "";
+    var user = "";
+
+    var submissionObj = {id, filePath, weekEnding, timeSheet, user};
+
+    console.log(submissionObj);
+}
+
+
+const axios = require('axios');
+
+function getDatafromDB() {
+    var userName = "user"
+    const config = {
+        headers: {"Access-Control-Allow-Origin": "*"},
+        params: {weekEnding: "31 March 2018"}
+    }
+    const res = axios.get('http://localhost:8080/api/timeSheet/' + userName, config)
+                .then(data => setTimeTable(data.data));
+                
+   // console.log(timeTable);
+    /*
+    var weekEnding = "31 March 2018";
+    var userName = "user";
+    
+    const specs = {
+        method: 'GET',
+       /* headers: {'Content-Type' : 'application/json',
+        "Access-Control-Allow-Origin": "*"} */
+   //     body: JSON.stringify({weekEnding: "31 March 2018", userName: "user"})
+    //}; 
+     //fetch('http://localhost:8080/api/timeSheet', specs)
+     //.then(response => response.json())
+     //.then(data => setTimeTable({ totalReactPackages: data.total }));
+     
+}
+
+
+function loadWeek(event) {
+    event.stopPropagation();
+   // console.log("asdasdasd", props.loadWeek());
+    setChosenWeek(props.loadWeek());
+    var weekArr = chosenWeek.split(",");
+    let newArr = [...rows];
+    for (let i = 0; i < 7; i++) {{
+        newArr[i].date = weekArr[i];
+    }}
+    setRows(newArr);
+    getDatafromDB();
+    console.log(timeTable);
 }
 
 const changeEndTime = index => event => {
@@ -163,8 +218,9 @@ const changeEndTime = index => event => {
 
     return (
     <React.Fragment>
+    <Button style={{float: "left"}} variant="outlined"  onClick = {loadWeek}>Load Table</Button>
     <TableContainer component={Paper}>
-      <Table aria-label="simple table">
+      <Table aria-label="simple table" style={{borderTop:10, borderLeft:10}}>
         <TableHead>
           <TableRow>
             <TableCell style ={{fontWeight: 'bold'}} >Day</TableCell>
@@ -180,11 +236,11 @@ const changeEndTime = index => event => {
         <TableBody>
           {rows.map((row, i) => (
             <TableRow
-              key={row.name}
+              key={row.day}
             //   sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
               <TableCell component="th" scope="row">
-                {row.name}
+                {row.day}
               </TableCell>
               <TableCell>{row.date}</TableCell>
               
@@ -257,7 +313,7 @@ const changeEndTime = index => event => {
               <TableCell><input type="checkbox" name="holiday" value="holiday" disabled ={true}/>
               </TableCell>
 
-              <TableCell><input type="checkbox" name="vacation" value="vacation" onChange={changeVacation(i)} disabled={row.floatingday || floatCount >= 3 || vacationCount >= 2}/>
+              <TableCell><input type="checkbox" name="vacation" value="vacation" onChange={changeVacation(i)} disabled={row.floatingDay || floatCount >= 3 || vacationCount >= 2}/>
               </TableCell>
             </TableRow>
           ))}
@@ -267,7 +323,16 @@ const changeEndTime = index => event => {
       <br></br>
       {totalCompensated}
     </TableContainer>
+    <br></br>
     <Button style={{float: "right"}} variant="outlined" onClick = {saveWeek}>Save</Button>
-    {selectedWeek}
+    {/* {props.selectedWeek} */}
+    <br></br>
+    <div>
+    <select name="endtime" id="endtime" >
+            <option value= "Approved">Approved Timesheet</option>
+            <option value= "Unapproved">Unapproved Timesheet</option>
+    </select>
+    <input type="file" />
+    </div>
     </React.Fragment>);
 }

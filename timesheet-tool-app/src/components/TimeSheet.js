@@ -6,28 +6,19 @@ import * as React from 'react';
 const {useState} = require("react");
 
 export default function TimeSheet() {
-   // const location = useLocation();
-   // let history = useHistory();
 
     const [totalBilling, setTotalBilling] = useState();
-    const [totalComp, setTotalComp] = useState();
+    const [totalCompensated, setTotalCompensated] = useState();
     const [selectedWeek, setSelectedWeek] = useState("11-7-2021,11-6-2021,11-5-2021,11-4-2021,11-3-2021,11-2-2021,11-1-2021");
 
-  /*  const dates = [...Array(7)].map((_, i) => {
-        const d = new Date()
-        d.setDate(d.getDate() - i)
-        return d
-    }) */
+
 
     const selectWeek = event => {
         setSelectedWeek(event.target.value);
-        //console.log(event.target.value);
-       // var parseDay = event.target.value.split('-');
-       // console.log(parseDay[0]);
-        //console.log(parseDay[1]);
-        //console.log(parseDay[2]);
+
         console.log(event.target.value);
 
+    
         var lastDayofWeek = new Date(event.target.value);
         //console.log(lastDayofWeek);
         //var prevDay = new Date(event.target.value);
@@ -40,6 +31,21 @@ export default function TimeSheet() {
         //console.log(Date.parse(prevDay));
         setSelectedWeek(Last7Days(lastDayofWeek));
         console.log(Last7Days(lastDayofWeek));
+
+       // return Last7Days(lastDayofWeek);
+    }
+
+    function loadWeek(){
+        return selectedWeek;
+    }
+
+
+    function saveTotalCompensated(value){
+        setTotalCompensated(value);
+    }
+
+    function saveTotalBilling(value){
+        setTotalBilling(value);
     }
 
     function Last7Days(stringDate) {
@@ -61,38 +67,44 @@ export default function TimeSheet() {
             //console.log(newDate);
             //console.log(newDate);
             result.push(strDate);
-
         }
     
         return(result.join(','));
     }
 
+    React.useEffect(() => {
+        setTotalBilling(20);
+        setTotalCompensated(30);
+    });
+
     return (
         <React.Fragment>
         <div>
-            <div >
-            <label style={{fontWeight:'bold'}}>Week Ending: </label>
-            <select name="date" id="date" onChange={selectWeek}>
-                <option value="11-07-2021">11-07-2021</option>
-                <option value="10-31-2021">10-31-2021</option>
-                <option value="10-24-2021">10-24-2021</option>
-                <option value="10-17-2021">10-17-2021</option>
-                <option value="10-10-2021">10-10-2021</option>
-            </select>
-            <div>
-            
-            </div>
-            <label style={{fontWeight:'bold'}}> Total Billing Hours:  </label>
-                <input type="text" value={totalBilling} onChange={event => setTotalBilling(event.target.value)}/>
-            <label style={{fontWeight:'bold'}}> Total Compensated Hours:  </label>
-                    <input type="text" value={totalComp} onChange={event => setTotalComp(event.target.value)}/>
+            <br></br>
+            <div style={{fontWeight: 'bold', display: 'flex', justifyContent: 'space-evenly'}}>
+            <label>Week Ending: &nbsp;
+                <select name="date" id="date" onChange={selectWeek}>
+                    <option value="11-07-2021">11-07-2021</option>
+                    <option value="10-31-2021">10-31-2021</option>
+                    <option value="10-24-2021">10-24-2021</option>
+                    <option value="10-17-2021">10-17-2021</option>
+                    <option value="10-10-2021">10-10-2021</option>
+                </select>
+            </label>
+            <label> Total Billing Hours: &nbsp;
+                <input type="text" value={totalBilling} onChange={event => setTotalBilling(event.target.value)} disabled/>
+            </label>
+            <label> Total Compensated Hours:   &nbsp;
+                    <input type="text" value={totalCompensated} onChange={event => setTotalCompensated(event.target.value)} disabled/>
+            </label>
 
             </div>
             <br></br>
             <Button style={{float: "right"}} variant="outlined">Set Default</Button>
             <br></br>
         </div>
-        <TimeSheetTable selectedWeek = {selectedWeek}/>
+        <TimeSheetTable selectedWeek = {selectedWeek}
+            loadWeek = {loadWeek}/>
         </React.Fragment>
     );
 }
