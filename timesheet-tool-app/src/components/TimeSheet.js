@@ -5,7 +5,15 @@ import * as React from 'react';
 
 const {useState} = require("react");
 
-export default function TimeSheet() {
+
+export default function TimeSheet(props) {
+   // const location = useLocation();
+   // let history = useHistory();
+   if(props.location.state){
+        console.log(props.location.state.approvalStatus);
+        console.log(props.location.state.weekEnding);
+   }
+  
 
     const [totalBilling, setTotalBilling] = useState();
     const [totalCompensated, setTotalCompensated] = useState();
