@@ -8,7 +8,6 @@ import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
 import Button from '@mui/material/Button';
-import './table.css'
 import TimeSheet from './TimeSheet';
 //need to do npm install @mui/material @emotion/react @emotion/styled
 
@@ -16,16 +15,6 @@ const {useState} = require("react");
 function createData(day, date, starttime, endtime, totaltime, floatingDay, holiday, vaccation) {
     return {day, date, starttime, endtime, totaltime, floatingDay, holiday, vaccation};
 }
-
-//   handleItemChanged(i, event){
-//     var items = this.state.items;
-//     rows[i]  = event.target.value;
-
-//     this.setState({
-//       rows: rows
-//     });
-//   }
-
 
 
 export default function TimeSheetTable(props) {
@@ -40,6 +29,11 @@ export default function TimeSheetTable(props) {
     const [chosenWeek, setChosenWeek] = useState(props.selectedWeek);
 
     const [timeTable, setTimeTable] = useState();
+
+    const [tableId, setTableID] = useState();
+    const [timeSheet, setTimeSheet] = useState();
+    const [userName, setUserName] = useState(localStorage.getItem("user"));
+    const [filePath, setFilePath] = useState();
     
    // const [floatCount, setFloatCount] = useState(0);
 
@@ -75,8 +69,13 @@ export default function TimeSheetTable(props) {
     }
     setRows(newArr);
     let total = newArr[index].totaltime;
-    setTotalBilling(totalBilling + (total = total || 0) - (prevTotal = prevTotal || 0));
-    setTotalCompensated(totalCompensated + (total = total || 0) - (prevTotal = prevTotal || 0));
+    var totalBill = totalBilling + (total = total || 0) - (prevTotal = prevTotal || 0)
+    setTotalBilling(totalBill);
+    props.totalBillingUpdate(totalBill);
+
+    var totalComp = totalCompensated + (total = total || 0) - (prevTotal = prevTotal || 0);
+    setTotalCompensated(totalComp);
+    props.totalCompensatedUpdate(totalComp);
 }
 
 const changeFloat = index => event => {
@@ -89,16 +88,19 @@ const changeFloat = index => event => {
         newArr[index].starttime = "N/A";
         newArr[index].endtime = "N/A";
         newArr[index].totaltime = 0;
-        setTotalBilling(totalBilling - prevTotal);
-    
-        setTotalCompensated(totalCompensated + 8 - prevTotal);
-
+        var totalBill = totalBilling - prevTotal;
+        setTotalBilling(totalBill);
+        props.totalBillingUpdate(totalBill);
+        var totalComp = totalCompensated + 8 - prevTotal;
+        setTotalCompensated(totalComp);
+        props.totalCompensatedUpdate(totalComp);
     } else {
         newArr[index].floatingDay = false;
 
         setFloatCount(floatCount - 1);
-     
-        setTotalCompensated(totalCompensated - 8);
+        var totalComp = totalCompensated - 8;
+        setTotalCompensated(totalComp);
+        props.totalCompensatedUpdate(totalComp);
     }
     setRows(newArr);
 
@@ -115,13 +117,22 @@ const changeVacation = index => event => {
         newArr[index].starttime = "N/A";
         newArr[index].endtime = "N/A";
         newArr[index].totaltime = 0;
-        setTotalBilling(totalBilling - prevTotal);
+        var totalBill = totalBilling - prevTotal;
+        setTotalBilling(totalBill);
+        props.totalBillingUpdate(totalBill);
         setvacationCount(vacationCount +  1);
-        setTotalCompensated(totalCompensated + 8 - prevTotal);
+
+        let totalComp = (totalCompensated + 8 - prevTotal);
+        setTotalCompensated(totalComp);
+        props.totalCompensatedUpdate(totalComp);
     } else {
         newArr[index].vaccation = false;
         setvacationCount(vacationCount -  1);
-        setTotalCompensated(totalCompensated - 8);
+
+        
+        let totalComp = totalCompensated - 8;
+        setTotalCompensated(totalComp);
+        props.totalCompensatedUpdate(totalComp);
     }
     setRows(newArr);
     console.log("vacation =", newArr[index].vaccation);
@@ -130,13 +141,23 @@ const changeVacation = index => event => {
 function saveWeek(event) {
     event.stopPropagation();
     var timeSheet = rows;
-    var id = "";
-    var filePath = "";
-    var weekEnding = "";
-    var user = "";
+    var id = tableId;
+    var file = filePath;
+    var weekEnding = chosenWeek.split(',')[0];
+    var user = userName;
+    var compensatedHours = totalCompensated;
 
-    var submissionObj = {id, filePath, weekEnding, timeSheet, user};
+    var submissionObj = {id, file, weekEnding, timeSheet, user, compensatedHours};
 
+    const specs = {
+        method: 'POST',
+        headers: {'Content-Type' : 'application/json',
+        "Access-Control-Allow-Origin": "*"},
+        body: JSON.stringify(submissionObj)
+    };
+    fetch("http://localhost:8080/api/timeSheet", specs)
+        .then(response => response.json())
+ 
     console.log(submissionObj);
 }
 
@@ -144,12 +165,14 @@ function saveWeek(event) {
 const axios = require('axios');
 
 function getDatafromDB() {
-    var userName = "usexxr"
+    var chosenSunday = chosenWeek.split(',')[0];
+    console.log(chosenSunday);
+    var user = userName;
     const config = {
         headers: {"Access-Control-Allow-Origin": "*"},
-        params: {weekEnding: "31 March 2018"}
+        params: {weekEnding: chosenSunday}
     }
-    const res = axios.get('http://localhost:8080/api/timeSheet/' + userName, config)
+    const res = axios.get('http://localhost:8080/api/timeSheet/' + user, config)
                 .then(data => setTimeTable(data.data));
     return timeTable;
    
@@ -163,23 +186,43 @@ function loadWeek(event) {
     var weekArr = chosenWeek.split(",");
 
     var dataFetched = getDatafromDB();
-    if (!dataFetched) {
+   /* if (!dataFetched) {
         //create new table function
         generateNewTable(weekArr);
-    } else {
+    } else { */
+    if (dataFetched) {
         console.log(timeTable);
         generateTableFromDB(timeTable);
     }
+  //  }
 
 }
 
 function generateTableFromDB(timeTable) {
+    setTableID(timeTable.id);
+    setTimeSheet(timeTable.timeSheet);
+    setFilePath(timeTable.filePath);
+    console.log(tableId);
+    //generates blank table
+    if(timeSheet) {
+        if (timeSheet[0].date === ""){
+            generateNewTable(chosenWeek.split(","));
+        } else {
+            //populateTable(timeSheet);
+            setRows(timeSheet);
+        }
+    }
 
-}
+
+    setTotalCompensated(timeTable.compensatedHours);
+    props.totalCompensatedUpdate(timeTable.compensatedHours);
+}  
+
+
 
 function generateNewTable(weekArr) {
     let newArr = [...rows];
-    console.log('xxxx');
+    //console.log('xxxx');
     for (let i = 0; i < 7; i++) {{
         newArr[i].date = weekArr[i];
         newArr[i].starttime = "N/A";
@@ -192,7 +235,9 @@ function generateNewTable(weekArr) {
     setRows(newArr);
     //uncheck all rows
     setTotalBilling(0);
+    props.totalBillingUpdate(0);
     setTotalCompensated(0);
+    props.totalCompensatedUpdate(0);
     console.log(newArr);
 }
 
@@ -203,10 +248,18 @@ const changeEndTime = index => event => {
     let newEnd = event.target.value;
     newArr[index].endtime = newEnd;
     newArr[index].totaltime = newEnd - newArr[index].starttime;
+    if (newArr[index].totaltime <= 0) {
+        newArr[index].totaltime = 0;
+    }
     setRows(newArr);
     let total = newArr[index].totaltime;
-    setTotalBilling(totalBilling + (total = total || 0) - (prevTotal = prevTotal || 0));
-    setTotalCompensated(totalCompensated + (total = total || 0) - (prevTotal = prevTotal || 0));
+    var totalBill = totalBilling + (total = total || 0) - (prevTotal = prevTotal || 0);
+    setTotalBilling(totalBill);
+    props.totalBillingUpdate(totalBill);
+
+    var totalComp = (totalCompensated + (total = total || 0) - (prevTotal = prevTotal || 0));
+    setTotalCompensated(totalComp);
+    props.totalCompensatedUpdate(totalComp);
 }
 
     return (
@@ -238,7 +291,8 @@ const changeEndTime = index => event => {
               <TableCell>{row.date}</TableCell>
               
               <TableCell>
-              <select name="starttime" id="starttime" onChange={changeStartTime(i)}>
+              <select name="starttime" id="starttime" onChange={changeStartTime(i)}
+                defaultValue ="8">
                 <option value= "0">12:00 AM</option>
                 <option value= "1">1:00 AM</option>
                 <option value= "2">2:00 AM</option>
@@ -269,7 +323,8 @@ const changeEndTime = index => event => {
               </TableCell>
               {/* <TableCell align="right">{row.carbs}</TableCell> */}
               <TableCell>
-              <select name="endtime" id="endtime" onChange={changeEndTime(i)}>
+              <select name="endtime" id="endtime" onChange={changeEndTime(i)}
+                defaultValue ="5">
                 <option value= "0">12:00 AM</option>
                 <option value= "1">1:00 AM</option>
                 <option value= "2">2:00 AM</option>
@@ -312,9 +367,7 @@ const changeEndTime = index => event => {
           ))}
         </TableBody>
       </Table>
-      {totalBilling}
-      <br></br>
-      {totalCompensated}
+  
     </TableContainer>
     <br></br>
     <Button style={{float: "right"}} variant="outlined" onClick = {saveWeek}>Save</Button>

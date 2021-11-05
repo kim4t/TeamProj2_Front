@@ -25,22 +25,12 @@ export default function TimeSheet(props) {
         setSelectedWeek(event.target.value);
 
         console.log(event.target.value);
-
     
         var lastDayofWeek = new Date(event.target.value);
-        //console.log(lastDayofWeek);
-        //var prevDay = new Date(event.target.value);
- 
-        //prevDay.setDate(lastDayofWeek.getDate() - 7);
-       // console.log(prevDay);
-        //console.log(lastDayofWeek.getDate() - 7);
-        //var prevDay = new Date();
-        //prevDay.setDate(lastDayofWeek.getDate() - 7);
-        //console.log(Date.parse(prevDay));
+
         setSelectedWeek(Last7Days(lastDayofWeek));
         console.log(Last7Days(lastDayofWeek));
 
-       // return Last7Days(lastDayofWeek);
     }
 
     function loadWeek(){
@@ -48,11 +38,11 @@ export default function TimeSheet(props) {
     }
 
 
-    function saveTotalCompensated(value){
+    const saveTotalCompensated = (value) => {
         setTotalCompensated(value);
     }
 
-    function saveTotalBilling(value){
+    const saveTotalBilling = (value) => {
         setTotalBilling(value);
     }
 
@@ -81,8 +71,8 @@ export default function TimeSheet(props) {
     }
 
     React.useEffect(() => {
-        setTotalBilling(20);
-        setTotalCompensated(30);
+        //setTotalBilling(20);
+       // setTotalCompensated(30);
     });
 
     return (
@@ -112,7 +102,9 @@ export default function TimeSheet(props) {
             <br></br>
         </div>
         <TimeSheetTable selectedWeek = {selectedWeek}
-            loadWeek = {loadWeek}/>
+            loadWeek = {loadWeek}
+            totalBillingUpdate = {saveTotalBilling}
+            totalCompensatedUpdate = {saveTotalCompensated}/>
         </React.Fragment>
     );
 }

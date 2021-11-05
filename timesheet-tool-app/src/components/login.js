@@ -1,9 +1,8 @@
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
-
+import {useHistory, useLocation} from "react-router-dom";
 import Box from '@mui/material/Box';
 
 import Container from '@mui/material/Container';
@@ -13,6 +12,7 @@ const theme = createTheme();
 const {useState} = require("react");
 export default function Login() {
     const [response, setResponse] = useState();
+    let history = useHistory();
 
     const submit = (event) => {
         event.preventDefault();
@@ -22,8 +22,11 @@ export default function Login() {
           password: data.get('password'),
         }); */
         login(data);
-        console.log(response);
-        localStorage.setItem("user", response.userName);
+        if (response) {
+            localStorage.setItem("user", response.userName);
+            console.log(response);
+            history.push("/")
+        }
       };
 
     function login(data) {
