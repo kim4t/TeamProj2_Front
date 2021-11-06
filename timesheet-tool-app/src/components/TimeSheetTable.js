@@ -219,7 +219,7 @@ function saveWeek(event) {
         method: 'POST',
         body: JSON.stringify(summaryObj)
     };
-    fetch("http://localhost:9000/api/summary", specs3)
+    fetch("http://localhost:9000/summary", specs3)
         .then(response => console.log(response))
         
 
