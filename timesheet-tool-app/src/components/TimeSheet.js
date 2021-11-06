@@ -13,14 +13,7 @@ export default function TimeSheet(props) {
     const [totalBilling, setTotalBilling] = useState();
     const [totalCompensated, setTotalCompensated] = useState();
     const [selectedWeek, setSelectedWeek] = useState();
-    const [viewFromSummary, setViewFromSummary] = useState(false);
 
-    if(props.location.state){
-        console.log(props.location.state.approvalStatus);
-        console.log(props.location.state.weekEnding);
-        setSelectedWeek(props.location.state.weekEnding);
-        setViewFromSummary(true);
-   }
 
     const selectWeek = event => {
         setSelectedWeek(event.target.value);
@@ -69,10 +62,7 @@ export default function TimeSheet(props) {
         return(result.join(','));
     }
 
-    React.useEffect(() => {
-        //setTotalBilling(20);
-       // setTotalCompensated(30);
-    });
+
 
     return (
         <React.Fragment>
@@ -90,10 +80,10 @@ export default function TimeSheet(props) {
                 </select>
             </label>
             <label> Total Billing Hours: &nbsp;
-                <input type="text" value={totalBilling} onChange={event => setTotalBilling(event.target.value)} disabled/>
+                <input type="text" value={totalBilling} disabled/>
             </label>
             <label> Total Compensated Hours:   &nbsp;
-                    <input type="text" value={totalCompensated} onChange={event => setTotalCompensated(event.target.value)} disabled/>
+                    <input type="text" value={totalCompensated} disabled/>
             </label>
 
             </div>
@@ -102,7 +92,8 @@ export default function TimeSheet(props) {
         <TimeSheetTable selectedWeek = {selectedWeek}
             totalBillingUpdate = {saveTotalBilling}
             totalCompensatedUpdate = {saveTotalCompensated}
-            viewFromSummary = {viewFromSummary}/>
+            weekfromSummary = {props.location.state.weekEnding}
+            approvalStatus = {props.location.state.approvalStatus}/>
         </React.Fragment>
     );
 }
