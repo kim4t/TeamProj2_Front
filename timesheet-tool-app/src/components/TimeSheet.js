@@ -8,30 +8,33 @@ const {useState} = require("react");
 
 export default function TimeSheet(props) {
    // const location = useLocation();
-   // let history = useHistory();
-   if(props.location.state){
-        console.log(props.location.state.approvalStatus);
-        console.log(props.location.state.weekEnding);
-   }
-  
+   // let history = useHistory();  
 
     const [totalBilling, setTotalBilling] = useState();
     const [totalCompensated, setTotalCompensated] = useState();
     const [selectedWeek, setSelectedWeek] = useState();
-
-
+    
+    let weekEndingfromSummary, approvalStatus;
+    try {
+        weekEndingfromSummary = props.location.state.weekEnding;
+        approvalStatus = props.location.state.approvalStatus;
+    } catch {
+        weekEndingfromSummary = undefined;
+        approvalStatus = undefined;
+    }
 
     const selectWeek = event => {
         setSelectedWeek(event.target.value);
 
         console.log("selected week: ", event.target.value);
     
-        var lastDayofWeek = new Date(event.target.value);
+       // var lastDayofWeek = new Date(event.target.value);
 
-        setSelectedWeek(Last7Days(lastDayofWeek));
+       // setSelectedWeek(Last7Days(lastDayofWeek));
         //console.log(Last7Days(lastDayofWeek));
 
     }
+
 
 
 
@@ -68,10 +71,7 @@ export default function TimeSheet(props) {
         return(result.join(','));
     }
 
-    React.useEffect(() => {
-        //setTotalBilling(20);
-       // setTotalCompensated(30);
-    });
+
 
     return (
         <React.Fragment>
@@ -80,6 +80,7 @@ export default function TimeSheet(props) {
             <div style={{fontWeight: 'bold', display: 'flex', justifyContent: 'space-evenly'}}>
             <label>Week Ending: &nbsp;
                 <select name="date" id="date" onChange={selectWeek}>
+                    <option value="" selected disabled hidden>Choose Week</option>
                     <option value="11-7-2021">11-07-2021</option>
                     <option value="10-31-2021">10-31-2021</option>
                     <option value="10-24-2021">10-24-2021</option>
@@ -88,10 +89,10 @@ export default function TimeSheet(props) {
                 </select>
             </label>
             <label> Total Billing Hours: &nbsp;
-                <input type="text" value={totalBilling} onChange={event => setTotalBilling(event.target.value)} disabled/>
+                <input type="text" value={totalBilling} disabled/>
             </label>
             <label> Total Compensated Hours:   &nbsp;
-                    <input type="text" value={totalCompensated} onChange={event => setTotalCompensated(event.target.value)} disabled/>
+                    <input type="text" value={totalCompensated} disabled/>
             </label>
 
             </div>
@@ -99,7 +100,9 @@ export default function TimeSheet(props) {
         </div>
         <TimeSheetTable selectedWeek = {selectedWeek}
             totalBillingUpdate = {saveTotalBilling}
-            totalCompensatedUpdate = {saveTotalCompensated}/>
+            totalCompensatedUpdate = {saveTotalCompensated}
+            weekfromSummary = {weekEndingfromSummary}
+            approvalStatus = {approvalStatus}/>
         </React.Fragment>
     );
 }

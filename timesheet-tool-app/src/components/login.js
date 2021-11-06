@@ -33,14 +33,15 @@ export default function Login() {
              localStorage.setItem("token", response.token);
              localStorage.setItem("status", response.status);
              console.log(response);
-             history.push("/")
+             history.push("/summary")
     }
 
     function login(data) {
         var email =  data.get('email');
         var pass = data.get('password');
 
-       console.log(email, pass);
+        console.log("POST Request to: http://localhost:9000/api/auth");
+    
         const specs = {
             method: 'POST',
             headers: {'Content-Type' : 'application/json',

@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
-
+import {useHistory, useLocation} from "react-router-dom";
 import Button from '@mui/material/Button';
 import TimeSheet from './TimeSheet';
 //need to do npm install @mui/material @emotion/react @emotion/styled
@@ -19,7 +19,7 @@ function createData(day, date, starttime, endtime, totaltime, floatingDay, holid
 
 
 export default function TimeSheetTable(props) {
-
+    let history = useHistory();
     const [floatCount, setFloatCount] = useState(0);
     //const [holidayCount, setHolidayCount] = useState(0);
     const [vacationCount, setvacationCount] = useState(0);
@@ -33,7 +33,11 @@ export default function TimeSheetTable(props) {
 
     const [tableId, setTableID] = useState();
     const [userName, setUserName] = useState(localStorage.getItem("user"));
-    const [filePath, setFilePath] = useState();
+    const [file, setFile] = useState();
+    const [haveDefault, sethaveDefault] = useState(true);
+    const [defaultTable, setDefaultTable] = useState();
+    const [tableUnloaded, setTableUnloaded] = useState(true);
+    const [approved, setApproved] = useState(false);
     
    // const [floatCount, setFloatCount] = useState(0);
 
@@ -41,20 +45,35 @@ export default function TimeSheetTable(props) {
     
     const [rows, setRows] = useState([
         createData('Sunday', "", "N/A", "N/A", 0, false, false, false),
-        createData('Monday', "", 8, 5, 0, false, false, false),
-        createData('Tuesday', "", 8, 5, 0, false, false, false),
-        createData('Wednesday', "", 8, 5, 0, false, false, false),
-        createData('Thursday', "", 8, 5, 0, false, false, false),
-        createData('Friday', "", 8, 5, 0, false, false, false),
+        createData('Monday', "", 8, 17, 9, false, false, false),
+        createData('Tuesday', "", 8, 17, 9, false, false, false),
+        createData('Wednesday', "", 8, 17, 9, false, false, false),
+        createData('Thursday', "", 8, 17, 9, false, false, false),
+        createData('Friday', "", 8, 17, 9, false, false, false),
         createData('Saturday', "", 'N/A', 'N/A', 0, false, false, false),
       ]);
 
 
 
-    // React.useEffect(() => { 
-    //     console.log("component updated"); 
+    React.useEffect(() => { 
+        if(!localStorage.getItem("token")){
+            history.push("/");
+            window.location = '/';
+        }
+        if (props.weekfromSummary){ 
+
+            var chosenSunday = props.weekfromSummary
+            console.log("Chosen Week From Summary: " + chosenSunday); 
+            console.log("Approval Status: " + props.approvalStatus); 
+            setChosenWeek(chosenSunday);
+            getDatafromDB(chosenSunday);
+            setTableUnloaded(false);
+            if (props.approvalStatus === "Approved") {
+                setApproved(true);
+            }
+        }
         
-    // });
+    },[]);
 
  
  const changeStartTime = index => event => {
@@ -88,10 +107,11 @@ const changeFloat = index => event => {
         newArr[index].starttime = "N/A";
         newArr[index].endtime = "N/A";
         newArr[index].totaltime = 0;
-        var totalBill = totalBilling - prevTotal;
+        var totalBill = totalBilling - (prevTotal = prevTotal || 0);
         setTotalBilling(totalBill);
         props.totalBillingUpdate(totalBill);
-        var totalComp = totalCompensated + 8 - prevTotal;
+      
+        var totalComp = totalCompensated + 8 - (prevTotal = prevTotal || 0);
         setTotalCompensated(totalComp);
         props.totalCompensatedUpdate(totalComp);
     } else {
@@ -117,12 +137,12 @@ const changeVacation = index => event => {
         newArr[index].starttime = "N/A";
         newArr[index].endtime = "N/A";
         newArr[index].totaltime = 0;
-        var totalBill = totalBilling - prevTotal;
+        var totalBill = totalBilling - (prevTotal = prevTotal || 0);
         setTotalBilling(totalBill);
         props.totalBillingUpdate(totalBill);
         setvacationCount(vacationCount +  1);
 
-        let totalComp = (totalCompensated + 8 - prevTotal);
+        let totalComp = (totalCompensated + 8 - (prevTotal = prevTotal || 0));
         setTotalCompensated(totalComp);
         props.totalCompensatedUpdate(totalComp);
     } else {
@@ -140,15 +160,25 @@ const changeVacation = index => event => {
 
 function saveWeek(event) {
     event.stopPropagation();
+    if (!chosenWeek) {
+        throw new Error("Week hasn't been selected yet!")
+    } else if (!userName) {
+        throw new Error("User Not Found!");
+    }
+
     var timeSheet = rows;
     var id = tableId;
-    var filePath = filePath;
-    var weekEnding = chosenWeek.split(',')[0];
+    if (file) {
+        var filePath = file.name;
+    } else {
+        filePath = "";
+    }
+    var weekEnding = chosenWeek;
+
     var user = userName;
     var compensatedHours = totalCompensated;
 
     var submissionObj = {id, filePath, weekEnding, timeSheet, user, compensatedHours};
-
     const specs = {
         method: 'POST',
         headers: {'Content-Type' : 'application/json',
@@ -157,16 +187,35 @@ function saveWeek(event) {
     };
     fetch("http://localhost:9000/api/timeSheet", specs)
         .then(response => response.json())
- 
+
     console.log(submissionObj);
-    console.log("POST to http://localhost:9000/api/timeSheet");
+    console.log("POST to http://localhost:9000/api/timeSheet/" + user + "?weekEnding=" + weekEnding);
+
+    if (file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const specs2 = {
+        method: 'POST',
+        body: formData
+    };
+    fetch("http://localhost:9000/api/uploadFile/" + user, specs2)
+        .then(response => console.log(response))
+        
+    console.log(file);
+    console.log("POST to http://localhost:9000/api/uploadFile/" + user);
+    
+    }
 }
 
 
 const axios = require('axios');
 
 function getDatafromDB(chosenSunday) {
+
     console.log("GET from http://localhost:9000/api/timeSheet");
+    if (!userName) {
+        throw new Error("User Not Found!");
+    }
     var user = userName;
     const config = {
         headers: {"Access-Control-Allow-Origin": "*"},
@@ -183,21 +232,24 @@ function getDatafromDB(chosenSunday) {
 
 function loadWeek(event) {
     event.stopPropagation();
-    if (!props.selectedWeek) {
+    var chosenSunday = props.selectedWeek
+  /*  if (!props.selectedWeek) {
         chosenSunday = "11-7-2021";
     } else {
-        var chosenSunday = props.selectedWeek.split(',')[0];
-    }
+        //var chosenSunday = props.selectedWeek.split(',')[0];
+        var chosenSunday = props.selectedWeek;
+    } */
     setChosenWeek(chosenSunday);
     getDatafromDB(chosenSunday);
-
+    setTableUnloaded(false);
+    setApproved(false);
 
 }
 
 function generateTableFromDB(timeTable) {
     console.log(timeTable);
     setTableID(timeTable.id);
-    setFilePath(timeTable.filePath);
+   // setFileName(timeTable.filePath);
     setRows(timeTable.timeSheet);
 
     //generates blank table
@@ -212,15 +264,79 @@ function generateTableFromDB(timeTable) {
     } 
  */
     var totalBill = 0;
+    var vacCount = 0;
+    var flCount = 0;
     for(let i = 0; i < 7; i++) {
         totalBill += timeTable.timeSheet[i].totaltime;
+        if (timeTable.timeSheet[i].vaccation){
+            vacCount += 1;
+        }
+        if (timeTable.timeSheet[i].floatingDay){
+            flCount += 1;
+        }
     }
+
+    setFloatCount(flCount);
+    setvacationCount(vacCount);
+
     setTotalBilling(totalBill);
     props.totalBillingUpdate(totalBill);
 
     setTotalCompensated(timeTable.compensatedHours);
     props.totalCompensatedUpdate(timeTable.compensatedHours);
 }  
+
+function setDefault(event) {
+    event.stopPropagation();
+
+    setDefaultTable(rows);
+    sethaveDefault(false);
+
+}
+
+function fileUpload(event){
+    var file = event.target.files[0];
+    if(file) {
+        setFile(file);
+    }
+}
+
+function useDefault(event) {
+    event.stopPropagation();
+    let newArr = [...rows];
+    //console.log('xxxx');
+    let totalBill = 0;
+    let totalComp = 0;
+    let flCount = 0;
+    let vacCount = 0;
+    for (let i = 0; i < 7; i++) {{
+     //   newArr[i].date = weekArr[i];
+        newArr[i].starttime = defaultTable[i].starttime;
+        newArr[i].endtime = defaultTable[i].endtime;
+        newArr[i].totaltime = defaultTable[i].totaltime;
+        newArr[i].floatingDay = defaultTable[i].floatingDay;
+        newArr[i].vaccation = defaultTable[i].vaccation;
+        if(defaultTable[i].floatingDay) {
+            totalComp += 8;
+            flCount += 1;
+        }
+        if(defaultTable[i].vaccation) {
+            totalComp += 8;
+            vacCount += 1;
+        }
+        totalBill += defaultTable[i].totaltime;
+        totalComp += defaultTable[i].totaltime;
+    }}
+    setApproved(false);
+    setFloatCount(flCount);
+    setvacationCount(vacCount);
+    setRows(newArr);
+    setTotalBilling(totalBill);
+    props.totalBillingUpdate(totalBill);
+    setTotalCompensated(totalComp);
+    props.totalCompensatedUpdate(totalComp);
+
+}
 
 
 
@@ -235,6 +351,7 @@ function generateNewTable(weekArr) {
         newArr[i].floatingDay = false;
         newArr[i].holiday = false;
         newArr[i].vaccation = false;
+
     }}
     setRows(newArr);
     //uncheck all rows
@@ -281,7 +398,8 @@ const changeEndTime = index => event => {
     <br></br>
     <div style={{fontWeight: 'bold', display: 'flex', justifyContent: 'space-evenly'}}>
     <Button  variant="outlined"  onClick = {loadWeek}>Load Table</Button>
-    <Button style={{float: "right"}} variant="outlined">Set Default</Button>
+    <Button  variant="outlined" onClick={setDefault} disabled={tableUnloaded}>Set Default</Button>
+    <Button  variant="outlined" onClick={useDefault} disabled={haveDefault}>Use Default</Button>
     </div>
     <br></br>
     <br></br>
@@ -312,7 +430,7 @@ const changeEndTime = index => event => {
               
               <StyledTableCell>
               <select name="starttime" id="starttime" onChange={changeStartTime(i)}
-                value={row.starttime}>
+                value={row.starttime} disabled={row.floatingDay || row.vaccation || approved}>
                 <option value= "0">12:00 AM</option>
                 <option value= "1">1:00 AM</option>
                 <option value= "2">2:00 AM</option>
@@ -343,7 +461,7 @@ const changeEndTime = index => event => {
               {/* <TableCell align="right">{row.carbs}</TableCell> */}
               <StyledTableCell>
               <select name="endtime" id="endtime" onChange={changeEndTime(i)}
-                value={row.endtime}>
+                value={row.endtime} disabled={row.floatingDay || row.vaccation || approved}>
                 <option value= "0">12:00 AM</option>
                 <option value= "1">1:00 AM</option>
                 <option value= "2">2:00 AM</option>
@@ -374,14 +492,14 @@ const changeEndTime = index => event => {
             </StyledTableCell>
               <StyledTableCell>{row.totaltime}</StyledTableCell>
 
-              <StyledTableCell><input type="checkbox" name="floatingday" value="floatingday" onChange={changeFloat(i)} checked={row.floatingDay} disabled={(row.vaccation || floatCount >= 3 || vacationCount >= 2)}/>
+              <StyledTableCell><input type="checkbox" name="floatingday" value="floatingday" onChange={changeFloat(i)} checked={row.floatingDay} disabled={(approved || row.vaccation ||(( floatCount >= 3 || vacationCount >= 2) && !row.floatingDay))}/>
               
               </StyledTableCell>
 
               <StyledTableCell><input type="checkbox" name="holiday" value="holiday" disabled ={true}/>
               </StyledTableCell>
 
-              <StyledTableCell><input type="checkbox" name="vacation" value="vacation" onChange={changeVacation(i)} checked={row.vaccation} disabled={row.floatingDay || floatCount >= 3 || vacationCount >= 2}/>
+              <StyledTableCell><input type="checkbox" name="vacation" value="vacation" onChange={changeVacation(i)} checked={row.vaccation} disabled={(approved || row.floatingDay ||(( floatCount >= 3 || vacationCount >= 2) && !row.vaccation))}/>
               </StyledTableCell>
             </TableRow>
           ))}
@@ -392,14 +510,14 @@ const changeEndTime = index => event => {
     <br></br>
     
     <div style={{fontWeight: 'bold', display: 'flex', justifyContent: 'space-evenly'}}>
-    <div >
+    <div>
     <select name="endtime" id="endtime" >
             <option value= "Approved">Approved Timesheet</option>
             <option value= "Unapproved">Unapproved Timesheet</option>
     </select>
-    <input type="file" />
+    <input type="file" onChange = {fileUpload}/>
     </div>
-    <Button style={{float: "right"}} variant="outlined" onClick = {saveWeek}>Save</Button>
+    <Button style={{transform: "translateX(100%)"}} variant="outlined" onClick = {saveWeek}>Save</Button>
     {/* {props.selectedWeek} */}
     <br></br>
     

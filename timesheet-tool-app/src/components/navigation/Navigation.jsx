@@ -5,24 +5,25 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 class Navigation extends React.Component {
 
     clearStorage(){
-        localStorage.setItem("user", "");
+       /* localStorage.setItem("user", "");
         localStorage.setItem("status", "");
-        localStorage.setItem("token", "");
+        localStorage.setItem("token", ""); */
+        localStorage.clear();
     }
 
     render() {
         return (
             <div>
-                <Navbar bg="light" expand="lg">
-                    <Container>
-                        <Navbar.Brand href="/summary">TimeSheets</Navbar.Brand>
+                <Navbar bg="dark" expand="lg">
+                    <Container >
+                        <Navbar.Brand href="/summary" style={{color:'white'}}>TimeSheets</Navbar.Brand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
                         <Navbar.Collapse id="basic-navbar-nav">
                             <Nav className="me-auto">
-                                <Nav.Link href="/summary">Summary</Nav.Link>
-                                <Nav.Link href="/timeSheet">TimeSheet</Nav.Link>
-                                <Nav.Link href="/profile">Profile</Nav.Link>
-                                <Nav.Link href="/login" onClick = {this.clearStorage}>Logout</Nav.Link>
+                                <Nav.Link style={{color:'white'}} href="/summary">Summary</Nav.Link>
+                                <Nav.Link style={{color:'white'}} href="/timeSheet">TimeSheet</Nav.Link>
+                                <Nav.Link style={{color:'white'}} href="/profile">Profile</Nav.Link>
+                                <Nav.Link style={{color:'white'}} href="/login" onClick = {this.clearStorage}>Logout</Nav.Link>
                             </Nav>
                         </Navbar.Collapse>
                     </Container>

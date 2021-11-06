@@ -4,6 +4,7 @@ import {Form,Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Profile.css';
 
+
 class Profile extends React.Component {
     constructor(props){
         super(props);
@@ -15,13 +16,18 @@ class Profile extends React.Component {
             em1name:"",
             em1phone:"",
             em2name:"",
-            em2phone:""
+            em2phone:"",
+            user:localStorage.getItem("user"),
         }
     }
 
     componentDidMount(){
+        if(!localStorage.getItem("token")){
+            this.props.history.push("/")
+            window.location = '/';
+        }
         axios
-            .get('http://localhost:9000/profile',{ params: { user: localStorage.getItem('user') } })
+            .get('http://localhost:9000/profile/'+this.state.user)
             .then((response) => {
                 console.log(response);
                 this.setState({userId:response.data.id, phone:response.data.phone, email:response.data.email,address:response.data.address});
@@ -33,6 +39,7 @@ class Profile extends React.Component {
             .catch((error) => {
                 console.log(error);
             });
+            
     }
 
     handleUpdate = () =>{
@@ -58,6 +65,7 @@ class Profile extends React.Component {
             .catch((error) => {
                 console.log(error);
             });
+            
     }
 
     render() {
