@@ -8,27 +8,28 @@ const {useState} = require("react");
 
 export default function TimeSheet(props) {
    // const location = useLocation();
-   // let history = useHistory();
-   if(props.location.state){
-        console.log(props.location.state.approvalStatus);
-        console.log(props.location.state.weekEnding);
-   }
-  
+   // let history = useHistory();  
 
     const [totalBilling, setTotalBilling] = useState();
     const [totalCompensated, setTotalCompensated] = useState();
     const [selectedWeek, setSelectedWeek] = useState();
+    const [viewFromSummary, setViewFromSummary] = useState(false);
 
-
+    if(props.location.state){
+        console.log(props.location.state.approvalStatus);
+        console.log(props.location.state.weekEnding);
+        setSelectedWeek(props.location.state.weekEnding);
+        setViewFromSummary(true);
+   }
 
     const selectWeek = event => {
         setSelectedWeek(event.target.value);
 
         console.log("selected week: ", event.target.value);
     
-        var lastDayofWeek = new Date(event.target.value);
+       // var lastDayofWeek = new Date(event.target.value);
 
-        setSelectedWeek(Last7Days(lastDayofWeek));
+       // setSelectedWeek(Last7Days(lastDayofWeek));
         //console.log(Last7Days(lastDayofWeek));
 
     }
@@ -80,6 +81,7 @@ export default function TimeSheet(props) {
             <div style={{fontWeight: 'bold', display: 'flex', justifyContent: 'space-evenly'}}>
             <label>Week Ending: &nbsp;
                 <select name="date" id="date" onChange={selectWeek}>
+                    <option value="" selected disabled hidden>Choose Week</option>
                     <option value="11-7-2021">11-07-2021</option>
                     <option value="10-31-2021">10-31-2021</option>
                     <option value="10-24-2021">10-24-2021</option>
@@ -99,7 +101,8 @@ export default function TimeSheet(props) {
         </div>
         <TimeSheetTable selectedWeek = {selectedWeek}
             totalBillingUpdate = {saveTotalBilling}
-            totalCompensatedUpdate = {saveTotalCompensated}/>
+            totalCompensatedUpdate = {saveTotalCompensated}
+            viewFromSummary = {viewFromSummary}/>
         </React.Fragment>
     );
 }

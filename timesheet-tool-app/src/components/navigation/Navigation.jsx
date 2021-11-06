@@ -5,9 +5,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 class Navigation extends React.Component {
 
     clearStorage(){
-        localStorage.setItem("user", "");
+       /* localStorage.setItem("user", "");
         localStorage.setItem("status", "");
-        localStorage.setItem("token", "");
+        localStorage.setItem("token", ""); */
+        localStorage.clear();
     }
 
     render() {
