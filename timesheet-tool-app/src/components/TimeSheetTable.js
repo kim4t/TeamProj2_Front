@@ -142,12 +142,12 @@ function saveWeek(event) {
     event.stopPropagation();
     var timeSheet = rows;
     var id = tableId;
-    var file = filePath;
+    var filePath = filePath;
     var weekEnding = chosenWeek.split(',')[0];
     var user = userName;
     var compensatedHours = totalCompensated;
 
-    var submissionObj = {id, file, weekEnding, timeSheet, user, compensatedHours};
+    var submissionObj = {id, filePath, weekEnding, timeSheet, user, compensatedHours};
 
     const specs = {
         method: 'POST',
