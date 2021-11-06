@@ -4,17 +4,20 @@ import {Form,Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Profile.css';
 
+
 class Profile extends React.Component {
     constructor(props){
         super(props);
         this.state = {
+            userId:"",
             phone:"",
             email:"",
             address:"",
             em1name:"",
             em1phone:"",
             em2name:"",
-            em2phone:""
+            em2phone:"",
+            user:localStorage.getItem("user"),
         }
     }
 
@@ -24,10 +27,10 @@ class Profile extends React.Component {
             window.location = '/';
         }
         axios
-            .get('http://localhost:9000/profile',{ params: { user: 'user2' } })
+            .get('http://localhost:9000/profile/'+this.state.user)
             .then((response) => {
                 console.log(response);
-                this.setState({phone:response.data.phone, email:response.data.email,address:response.data.address});
+                this.setState({userId:response.data.id, phone:response.data.phone, email:response.data.email,address:response.data.address});
                 this.setState({em1name:response.data.emergencyContacts[0].name});
                 this.setState({em1phone:response.data.emergencyContacts[0].phone})
                 this.setState({em2name:response.data.emergencyContacts[1].name})
@@ -36,12 +39,13 @@ class Profile extends React.Component {
             .catch((error) => {
                 console.log(error);
             });
+            
     }
 
     handleUpdate = () =>{
         const contact = {
-            id:"6184834c257787a6bae94c2c",
-            user:"user2",
+            id:this.state.userId,
+            user:localStorage.getItem('user'),
             phone:this.state.phone,
             email:this.state.email,
             address:this.state.address,
@@ -61,6 +65,7 @@ class Profile extends React.Component {
             .catch((error) => {
                 console.log(error);
             });
+            
     }
 
     render() {

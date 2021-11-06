@@ -9,7 +9,8 @@ class Summary extends React.Component {
         super(props);
         this.state = {
             weekSummary:[],
-            showSummary:[]
+            showSummary:[],
+            testSummary:{}
         }
     }
     
@@ -19,7 +20,7 @@ class Summary extends React.Component {
             window.location = '/';
         }
         axios
-            .get('http://localhost:9000/summary')
+            .get('http://localhost:9000/summary/' + localStorage.getItem('user'))
             .then((response) => {
                 this.setState({weekSummary:response.data,showSummary:response.data.slice(0,1)});
             })
