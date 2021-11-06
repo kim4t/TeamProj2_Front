@@ -214,7 +214,7 @@ function saveWeek(event) {
     var approvalStatus = approved;
     var comment = floatCount + " Floating Day Used, " + vacationCount + " Vacation used";
     var summaryObj = {user, weekEnding, totalHours, submissionStatus, approvalStatus, comment};
-
+    console.log(summaryObj);
     const specs3 = {
         method: 'POST',
         body: JSON.stringify(summaryObj)

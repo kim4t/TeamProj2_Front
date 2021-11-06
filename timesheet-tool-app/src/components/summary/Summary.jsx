@@ -48,7 +48,7 @@ class Summary extends React.Component {
 
     render() {
         return (
-            <div>
+            <div >
                 <Table striped bordered hover>
                     <thead>
                         <tr>
