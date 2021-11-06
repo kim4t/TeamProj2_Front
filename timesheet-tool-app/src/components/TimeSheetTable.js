@@ -168,12 +168,20 @@ function saveWeek(event) {
 
     var timeSheet = rows;
     var id = tableId;
+<<<<<<< HEAD
+    var filePath = filePath;
+
+
+
+=======
     if (file) {
         var filePath = file.name;
     } else {
         filePath = "";
     }
+>>>>>>> 214c32409b8f0c96fcea4505892af11828304cc6
     var weekEnding = chosenWeek;
+
     var user = userName;
     var compensatedHours = totalCompensated;
 
