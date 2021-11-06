@@ -15,7 +15,7 @@ class Summary extends React.Component {
     
     componentDidMount(){
         axios
-            .get('http://localhost:8080/summary')
+            .get('http://localhost:9000/summary')
             .then((response) => {
                 this.setState({weekSummary:response.data,showSummary:response.data.slice(0,1)});
             })

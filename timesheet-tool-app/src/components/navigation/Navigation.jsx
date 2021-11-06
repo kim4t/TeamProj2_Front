@@ -3,6 +3,14 @@ import {Navbar, Container,Nav} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 class Navigation extends React.Component {
+
+    clearStorage(){
+       /* localStorage.setItem("user", "");
+        localStorage.setItem("status", "");
+        localStorage.setItem("token", ""); */
+        localStorage.clear();
+    }
+
     render() {
         return (
             <div>
@@ -15,6 +23,7 @@ class Navigation extends React.Component {
                                 <Nav.Link href="/summary">Summary</Nav.Link>
                                 <Nav.Link href="/timeSheet">TimeSheet</Nav.Link>
                                 <Nav.Link href="/profile">Profile</Nav.Link>
+                                <Nav.Link href="/login" onClick = {this.clearStorage}>Logout</Nav.Link>
                             </Nav>
                         </Navbar.Collapse>
                     </Container>

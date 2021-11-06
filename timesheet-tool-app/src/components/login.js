@@ -11,9 +11,12 @@ const theme = createTheme();
 
 const {useState} = require("react");
 export default function Login() {
-    const [response, setResponse] = useState();
+
+    //const [response, setResponse] = useState();
     let history = useHistory();
 
+
+    
     const submit = (event) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);        
@@ -22,27 +25,31 @@ export default function Login() {
           password: data.get('password'),
         }); */
         login(data);
-        if (response) {
-            localStorage.setItem("user", response.userName);
-            console.log(response);
-            history.push("/")
-        }
+     
       };
+
+    function redirect(response) {
+        localStorage.setItem("user", response.userName);
+             localStorage.setItem("token", response.token);
+             localStorage.setItem("status", response.status);
+             console.log(response);
+             history.push("/")
+    }
 
     function login(data) {
         var email =  data.get('email');
         var pass = data.get('password');
 
-        console.log(email, pass);
+       console.log(email, pass);
         const specs = {
             method: 'POST',
             headers: {'Content-Type' : 'application/json',
             "Access-Control-Allow-Origin": "*"},
             body: JSON.stringify({userName: email, password: pass})
         };
-        fetch("http://localhost:8080/api/auth", specs)
+        fetch("http://localhost:9000/api/auth", specs)
             .then(response => response.json())
-            .then(data => setResponse(data));
+            .then(data => redirect(data));
      
     }
     return(

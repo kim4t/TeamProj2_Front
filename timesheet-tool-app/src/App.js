@@ -11,7 +11,7 @@ import Login from './components/login';
 function App(){
     return (
       <div>
-        <Navigation />
+        <Navigation/>
         <BrowserRouter>
           <Switch>
             <Route path="/login" component={Login} />
