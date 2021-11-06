@@ -47,7 +47,7 @@ export default function Login() {
             "Access-Control-Allow-Origin": "*"},
             body: JSON.stringify({userName: email, password: pass})
         };
-        fetch("http://localhost:8080/api/auth", specs)
+        fetch("http://localhost:9000/api/auth", specs)
             .then(response => response.json())
             .then(data => redirect(data));
      

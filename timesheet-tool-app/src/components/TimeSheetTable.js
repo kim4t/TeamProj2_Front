@@ -168,18 +168,19 @@ function saveWeek(event) {
         "Access-Control-Allow-Origin": "*"},
         body: JSON.stringify(submissionObj)
     };
-    fetch("http://localhost:8080/api/timeSheet", specs)
+    fetch("http://localhost:9000/api/timeSheet", specs)
         .then(response => response.json())
  
     console.log(submissionObj);
-    console.log("POST to http://localhost:8080/api/timeSheet");
+    console.log("POST to http://localhost:9000/api/timeSheet");
 }
 
 
 const axios = require('axios');
 
 function getDatafromDB(chosenSunday) {
-    console.log("GET from http://localhost:8080/api/timeSheet");
+
+    console.log("GET from http://localhost:9000/api/timeSheet");
     if (!userName) {
         throw new Error("User Not Found!");
     }
@@ -188,7 +189,7 @@ function getDatafromDB(chosenSunday) {
         headers: {"Access-Control-Allow-Origin": "*"},
         params: {weekEnding: chosenSunday}
     }
-    const res = axios.get('http://localhost:8080/api/timeSheet/' + user, config)
+    const res = axios.get('http://localhost:9000/api/timeSheet/' + user, config)
                 .then(data => generateTableFromDB(data.data));                
     //return timeTable;
    
