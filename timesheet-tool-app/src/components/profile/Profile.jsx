@@ -20,7 +20,7 @@ class Profile extends React.Component {
 
     componentDidMount(){
         axios
-            .get('http://localhost:8080/profile',{ params: { user: 'user2' } })
+            .get('http://localhost:9000/profile',{ params: { user: 'user2' } })
             .then((response) => {
                 console.log(response);
                 this.setState({phone:response.data.phone, email:response.data.email,address:response.data.address});
@@ -48,9 +48,9 @@ class Profile extends React.Component {
                 name:this.state.em2name,
                 phone:this.state.em2phone
             }]
-        }
+        };
         axios
-            .post('http://localhost:8080/profile',contact)
+            .post('http://localhost:9000/profile',contact)
             .then((response) => {
                 console.log(response);
             })
