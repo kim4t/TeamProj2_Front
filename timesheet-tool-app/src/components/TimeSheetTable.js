@@ -37,6 +37,7 @@ export default function TimeSheetTable(props) {
     const [haveDefault, sethaveDefault] = useState(true);
     const [defaultTable, setDefaultTable] = useState();
     const [tableUnloaded, setTableUnloaded] = useState(true);
+    const [approved, setApproved] = useState(false);
     
    // const [floatCount, setFloatCount] = useState(0);
 
@@ -59,9 +60,16 @@ export default function TimeSheetTable(props) {
             history.push("/");
             window.location = '/';
         }
-        if (props.viewFromSummary){ 
-            console.log("component updated"); 
-            loadWeek();
+        if (props.weekfromSummary){ 
+            var chosenSunday = props.weekfromSummary
+            console.log("Chosen Week From Summary: " + chosenSunday); 
+            console.log("Approval Status: " + props.approvalStatus); 
+            setChosenWeek(chosenSunday);
+            getDatafromDB(chosenSunday);
+            setTableUnloaded(false);
+            if (props.approvalStatus === "Approved") {
+                setApproved(true);
+            }
         }
         
     },[]);
@@ -231,6 +239,7 @@ function loadWeek(event) {
     setChosenWeek(chosenSunday);
     getDatafromDB(chosenSunday);
     setTableUnloaded(false);
+    setApproved(false);
 
 }
 
@@ -315,7 +324,7 @@ function useDefault(event) {
         totalBill += defaultTable[i].totaltime;
         totalComp += defaultTable[i].totaltime;
     }}
-
+    setApproved(false);
     setFloatCount(flCount);
     setvacationCount(vacCount);
     setRows(newArr);
@@ -418,7 +427,7 @@ const changeEndTime = index => event => {
               
               <StyledTableCell>
               <select name="starttime" id="starttime" onChange={changeStartTime(i)}
-                value={row.starttime} disabled={row.floatingDay || row.vaccation}>
+                value={row.starttime} disabled={row.floatingDay || row.vaccation || approved}>
                 <option value= "0">12:00 AM</option>
                 <option value= "1">1:00 AM</option>
                 <option value= "2">2:00 AM</option>
@@ -449,7 +458,7 @@ const changeEndTime = index => event => {
               {/* <TableCell align="right">{row.carbs}</TableCell> */}
               <StyledTableCell>
               <select name="endtime" id="endtime" onChange={changeEndTime(i)}
-                value={row.endtime} disabled={row.floatingDay || row.vaccation}>
+                value={row.endtime} disabled={row.floatingDay || row.vaccation || approved}>
                 <option value= "0">12:00 AM</option>
                 <option value= "1">1:00 AM</option>
                 <option value= "2">2:00 AM</option>
@@ -480,14 +489,14 @@ const changeEndTime = index => event => {
             </StyledTableCell>
               <StyledTableCell>{row.totaltime}</StyledTableCell>
 
-              <StyledTableCell><input type="checkbox" name="floatingday" value="floatingday" onChange={changeFloat(i)} checked={row.floatingDay} disabled={(row.vaccation ||(( floatCount >= 3 || vacationCount >= 2) && !row.floatingDay))}/>
+              <StyledTableCell><input type="checkbox" name="floatingday" value="floatingday" onChange={changeFloat(i)} checked={row.floatingDay} disabled={(approved || row.vaccation ||(( floatCount >= 3 || vacationCount >= 2) && !row.floatingDay))}/>
               
               </StyledTableCell>
 
               <StyledTableCell><input type="checkbox" name="holiday" value="holiday" disabled ={true}/>
               </StyledTableCell>
 
-              <StyledTableCell><input type="checkbox" name="vacation" value="vacation" onChange={changeVacation(i)} checked={row.vaccation} disabled={(row.floatingDay ||(( floatCount >= 3 || vacationCount >= 2) && !row.vaccation))}/>
+              <StyledTableCell><input type="checkbox" name="vacation" value="vacation" onChange={changeVacation(i)} checked={row.vaccation} disabled={(approved || row.floatingDay ||(( floatCount >= 3 || vacationCount >= 2) && !row.vaccation))}/>
               </StyledTableCell>
             </TableRow>
           ))}

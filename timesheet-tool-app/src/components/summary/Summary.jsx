@@ -38,7 +38,7 @@ class Summary extends React.Component {
 
     handleViewAndEdit(index){
         console.log('summary index: ', index);
-        this.props.history.push('/timeSheet',{weekEnding: this.state.weekSummary[index].weekEnding,approvalStatus:this.state.weekSummary[index].approvalStatus});
+       this.props.history.push('/timeSheet',{weekEnding: this.state.weekSummary[index].weekEnding,approvalStatus:this.state.weekSummary[index].approvalStatus});
     }
 
     updateWeekSummary = (updatedSummary) =>{
