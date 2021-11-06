@@ -13,7 +13,15 @@ export default function TimeSheet(props) {
     const [totalBilling, setTotalBilling] = useState();
     const [totalCompensated, setTotalCompensated] = useState();
     const [selectedWeek, setSelectedWeek] = useState();
-
+    
+    let weekEndingfromSummary, approvalStatus;
+    try {
+        weekEndingfromSummary = props.location.state.weekEnding;
+        approvalStatus = props.location.state.approvalStatus;
+    } catch {
+        weekEndingfromSummary = undefined;
+        approvalStatus = undefined;
+    }
 
     const selectWeek = event => {
         setSelectedWeek(event.target.value);
@@ -26,6 +34,7 @@ export default function TimeSheet(props) {
         //console.log(Last7Days(lastDayofWeek));
 
     }
+
 
 
 
@@ -92,8 +101,8 @@ export default function TimeSheet(props) {
         <TimeSheetTable selectedWeek = {selectedWeek}
             totalBillingUpdate = {saveTotalBilling}
             totalCompensatedUpdate = {saveTotalCompensated}
-            weekfromSummary = {props.location.state.weekEnding}
-            approvalStatus = {props.location.state.approvalStatus}/>
+            weekfromSummary = {weekEndingfromSummary}
+            approvalStatus = {approvalStatus}/>
         </React.Fragment>
     );
 }

@@ -61,6 +61,7 @@ export default function TimeSheetTable(props) {
             window.location = '/';
         }
         if (props.weekfromSummary){ 
+            
             var chosenSunday = props.weekfromSummary
             console.log("Chosen Week From Summary: " + chosenSunday); 
             console.log("Approval Status: " + props.approvalStatus); 
@@ -507,14 +508,14 @@ const changeEndTime = index => event => {
     <br></br>
     
     <div style={{fontWeight: 'bold', display: 'flex', justifyContent: 'space-evenly'}}>
-    <div >
+    <div>
     <select name="endtime" id="endtime" >
             <option value= "Approved">Approved Timesheet</option>
             <option value= "Unapproved">Unapproved Timesheet</option>
     </select>
     <input type="file" onChange = {fileUpload}/>
     </div>
-    <Button style={{float: "right"}} variant="outlined" onClick = {saveWeek}>Save</Button>
+    <Button style={{transform: "translateX(100%)"}} variant="outlined" onClick = {saveWeek}>Save</Button>
     {/* {props.selectedWeek} */}
     <br></br>
     
