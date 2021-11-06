@@ -14,6 +14,10 @@ class Summary extends React.Component {
     }
     
     componentDidMount(){
+        if(!localStorage.getItem("token")){
+            this.props.history.push("/")
+            window.location = '/';
+        }
         axios
             .get('http://localhost:9000/summary')
             .then((response) => {

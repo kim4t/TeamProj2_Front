@@ -19,6 +19,10 @@ class Profile extends React.Component {
     }
 
     componentDidMount(){
+        if(!localStorage.getItem("token")){
+            this.props.history.push("/")
+            window.location = '/';
+        }
         axios
             .get('http://localhost:9000/profile',{ params: { user: 'user2' } })
             .then((response) => {

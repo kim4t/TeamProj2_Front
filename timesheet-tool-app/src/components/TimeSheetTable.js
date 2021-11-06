@@ -7,7 +7,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
-
+import {useHistory, useLocation} from "react-router-dom";
 import Button from '@mui/material/Button';
 import TimeSheet from './TimeSheet';
 //need to do npm install @mui/material @emotion/react @emotion/styled
@@ -19,7 +19,7 @@ function createData(day, date, starttime, endtime, totaltime, floatingDay, holid
 
 
 export default function TimeSheetTable(props) {
-
+    let history = useHistory();
     const [floatCount, setFloatCount] = useState(0);
     //const [holidayCount, setHolidayCount] = useState(0);
     const [vacationCount, setvacationCount] = useState(0);
@@ -33,7 +33,7 @@ export default function TimeSheetTable(props) {
 
     const [tableId, setTableID] = useState();
     const [userName, setUserName] = useState(localStorage.getItem("user"));
-    const [filePath, setFilePath] = useState();
+    const [file, setFile] = useState();
     const [haveDefault, sethaveDefault] = useState(true);
     const [defaultTable, setDefaultTable] = useState();
     const [tableUnloaded, setTableUnloaded] = useState(true);
@@ -55,6 +55,10 @@ export default function TimeSheetTable(props) {
 
 
     React.useEffect(() => { 
+        if(!localStorage.getItem("token")){
+            history.push("/");
+            window.location = '/';
+        }
         if (props.viewFromSummary){ 
             console.log("component updated"); 
             loadWeek();
@@ -155,13 +159,16 @@ function saveWeek(event) {
 
     var timeSheet = rows;
     var id = tableId;
-    var filePath = filePath;
+    if (file) {
+        var filePath = file.name;
+    } else {
+        filePath = "";
+    }
     var weekEnding = chosenWeek;
     var user = userName;
     var compensatedHours = totalCompensated;
 
     var submissionObj = {id, filePath, weekEnding, timeSheet, user, compensatedHours};
-
     const specs = {
         method: 'POST',
         headers: {'Content-Type' : 'application/json',
@@ -170,9 +177,23 @@ function saveWeek(event) {
     };
     fetch("http://localhost:9000/api/timeSheet", specs)
         .then(response => response.json())
- 
+
     console.log(submissionObj);
-    console.log("POST to http://localhost:9000/api/timeSheet");
+    console.log("POST to http://localhost:9000/api/timeSheet/" + user + "?weekEnding=" + weekEnding);
+
+    if (file) {
+    const formData = new FormData();
+    formData.append("file", file);
+    const specs2 = {
+        method: 'POST',
+        body: formData
+    };
+    fetch("http://localhost:9000/api/uploadFile/" + user, specs2)
+        .then(response => console.log(response))
+        
+    console.log(file);
+    console.log("POST to http://localhost:9000/api/uploadFile/" + user);
+    }
 }
 
 
@@ -216,7 +237,7 @@ function loadWeek(event) {
 function generateTableFromDB(timeTable) {
     console.log(timeTable);
     setTableID(timeTable.id);
-    setFilePath(timeTable.filePath);
+   // setFileName(timeTable.filePath);
     setRows(timeTable.timeSheet);
 
     //generates blank table
@@ -259,6 +280,13 @@ function setDefault(event) {
     setDefaultTable(rows);
     sethaveDefault(false);
 
+}
+
+function fileUpload(event){
+    var file = event.target.files[0];
+    if(file) {
+        setFile(file);
+    }
 }
 
 function useDefault(event) {
@@ -475,7 +503,7 @@ const changeEndTime = index => event => {
             <option value= "Approved">Approved Timesheet</option>
             <option value= "Unapproved">Unapproved Timesheet</option>
     </select>
-    <input type="file" />
+    <input type="file" onChange = {fileUpload}/>
     </div>
     <Button style={{float: "right"}} variant="outlined" onClick = {saveWeek}>Save</Button>
     {/* {props.selectedWeek} */}
