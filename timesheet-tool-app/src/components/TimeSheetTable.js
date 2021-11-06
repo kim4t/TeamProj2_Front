@@ -61,7 +61,7 @@ export default function TimeSheetTable(props) {
             window.location = '/';
         }
         if (props.weekfromSummary){ 
-            
+
             var chosenSunday = props.weekfromSummary
             console.log("Chosen Week From Summary: " + chosenSunday); 
             console.log("Approval Status: " + props.approvalStatus); 
@@ -202,6 +202,7 @@ function saveWeek(event) {
         
     console.log(file);
     console.log("POST to http://localhost:9000/api/uploadFile/" + user);
+    
     }
 }
 
