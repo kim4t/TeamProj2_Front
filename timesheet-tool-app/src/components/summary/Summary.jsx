@@ -9,13 +9,14 @@ class Summary extends React.Component {
         super(props);
         this.state = {
             weekSummary:[],
-            showSummary:[]
+            showSummary:[],
+            testSummary:{}
         }
     }
     
     componentDidMount(){
         axios
-            .get('http://localhost:9000/summary')
+            .get('http://localhost:9000/summary/' + localStorage.getItem('user'))
             .then((response) => {
                 this.setState({weekSummary:response.data,showSummary:response.data.slice(0,1)});
             })
