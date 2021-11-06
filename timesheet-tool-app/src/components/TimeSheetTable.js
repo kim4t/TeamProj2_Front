@@ -60,8 +60,7 @@ export default function TimeSheetTable(props) {
             history.push("/");
             window.location = '/';
         }
-        if (props.weekfromSummary){ 
-
+        if (props.weekfromSummary){
             var chosenSunday = props.weekfromSummary
             console.log("Chosen Week From Summary: " + chosenSunday); 
             console.log("Approval Status: " + props.approvalStatus); 
@@ -168,16 +167,19 @@ function saveWeek(event) {
 
     var timeSheet = rows;
     var id = tableId;
+
+
     if (file) {
         var filePath = file.name;
     } else {
         filePath = "";
     }
+
     var weekEnding = chosenWeek;
 
     var user = userName;
     var compensatedHours = totalCompensated;
-    //Posting Data to Timesheet Database
+
     var submissionObj = {id, filePath, weekEnding, timeSheet, user, compensatedHours};
     const specs = {
         method: 'POST',
@@ -190,7 +192,7 @@ function saveWeek(event) {
 
     console.log(submissionObj);
     console.log("POST to http://localhost:9000/api/timeSheet/" + user + "?weekEnding=" + weekEnding);
-    //Posting File to S3
+
     if (file) {
     const formData = new FormData();
     formData.append("file", file);
@@ -213,10 +215,14 @@ function saveWeek(event) {
     }
     var approvalStatus = approved;
     var comment = floatCount + " Floating Day Used, " + vacationCount + " Vacation used";
-    var summaryObj = {user, weekEnding, totalHours, submissionStatus, approvalStatus, comment};
+
+    var summaryObj = {id,user, weekEnding, totalHours, submissionStatus, approvalStatus, comment};
+
     console.log(summaryObj);
     const specs3 = {
         method: 'POST',
+        headers: {'Content-Type' : 'application/json',
+        "Access-Control-Allow-Origin": "*"},
         body: JSON.stringify(summaryObj)
     };
     fetch("http://localhost:9000/summary", specs3)
@@ -539,14 +545,14 @@ const changeEndTime = index => event => {
     <br></br>
     
     <div style={{fontWeight: 'bold', display: 'flex', justifyContent: 'space-evenly'}}>
-    <div>
+    <div >
     <select name="endtime" id="endtime" >
             <option value= "Approved">Approved Timesheet</option>
             <option value= "Unapproved">Unapproved Timesheet</option>
     </select>
     <input type="file" onChange = {fileUpload}/>
     </div>
-    <Button style={{transform: "translateX(100%)"}} variant="outlined" onClick = {saveWeek}>Save</Button>
+    <Button style={{float: "right"}} variant="outlined" onClick = {saveWeek}>Save</Button>
     {/* {props.selectedWeek} */}
     <br></br>
     
