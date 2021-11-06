@@ -177,7 +177,7 @@ function saveWeek(event) {
 
     var user = userName;
     var compensatedHours = totalCompensated;
-
+    //Posting Data to Timesheet Database
     var submissionObj = {id, filePath, weekEnding, timeSheet, user, compensatedHours};
     const specs = {
         method: 'POST',
@@ -190,7 +190,7 @@ function saveWeek(event) {
 
     console.log(submissionObj);
     console.log("POST to http://localhost:9000/api/timeSheet/" + user + "?weekEnding=" + weekEnding);
-
+    //Posting File to S3
     if (file) {
     const formData = new FormData();
     formData.append("file", file);
@@ -203,8 +203,28 @@ function saveWeek(event) {
         
     console.log(file);
     console.log("POST to http://localhost:9000/api/uploadFile/" + user);
-    
     }
+    //Posting Data to Summary
+    var totalHours = totalBilling;
+    var isComplete = checkforIncomplete(timeSheet);
+    var submissionStatus = "Not Completed";
+    if (isComplete) {
+        submissionStatus = "Completed";
+    }
+    var approvalStatus = approved;
+    var comment = floatCount + " Floating Day Used, " + vacationCount + " Vacation used";
+    var summaryObj = {user, weekEnding, totalHours, submissionStatus, approvalStatus, comment};
+
+    const specs3 = {
+        method: 'POST',
+        body: JSON.stringify(summaryObj)
+    };
+    fetch("http://localhost:9000/api/summary", specs3)
+        .then(response => console.log(response))
+        
+
+    console.log("POST to http://localhost:9000/summary");
+
 }
 
 
@@ -301,6 +321,15 @@ function fileUpload(event){
     }
 }
 
+function checkforIncomplete(table) {
+    for(let i = 0; i < 7;i++) {
+        if ((table[i].totaltime === 0) && (!table[i].floatingDay && !table[i].vaccation)) {
+            return false;
+        }
+    }
+    return true;
+    
+}
 function useDefault(event) {
     event.stopPropagation();
     let newArr = [...rows];

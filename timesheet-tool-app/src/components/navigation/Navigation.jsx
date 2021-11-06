@@ -14,11 +14,11 @@ class Navigation extends React.Component {
     render() {
         return (
             <div>
-                <Navbar bg="dark" expand="lg">
+                <Navbar bg="success" expand="lg">
                     <Container >
                         <Navbar.Brand href="/summary" style={{color:'white'}}>TimeSheets</Navbar.Brand>
                         <Navbar.Toggle aria-controls="basic-navbar-nav" />
-                        <Navbar.Collapse id="basic-navbar-nav">
+                        <Navbar.Collapse id="basic-navbar-nav" >
                             <Nav className="me-auto">
                                 <Nav.Link style={{color:'white'}} href="/summary">Summary</Nav.Link>
                                 <Nav.Link style={{color:'white'}} href="/timeSheet">TimeSheet</Nav.Link>
