@@ -4,6 +4,7 @@ import {Form,Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './Profile.css';
 
+
 class Profile extends React.Component {
     constructor(props){
         super(props);
@@ -14,7 +15,8 @@ class Profile extends React.Component {
             em1name:"",
             em1phone:"",
             em2name:"",
-            em2phone:""
+            em2phone:"",
+            user:localStorage.getItem("user"),
         }
     }
 
@@ -24,7 +26,7 @@ class Profile extends React.Component {
             window.location = '/';
         }
         axios
-            .get('http://localhost:9000/profile',{ params: { user: 'user2' } })
+            .get('http://localhost:9000/profile/'+this.state.user)
             .then((response) => {
                 console.log(response);
                 this.setState({phone:response.data.phone, email:response.data.email,address:response.data.address});
@@ -36,12 +38,13 @@ class Profile extends React.Component {
             .catch((error) => {
                 console.log(error);
             });
+            
     }
 
     handleUpdate = () =>{
         const contact = {
             id:"6184834c257787a6bae94c2c",
-            user:"user2",
+            user:this.state.user,
             phone:this.state.phone,
             email:this.state.email,
             address:this.state.address,
@@ -61,6 +64,7 @@ class Profile extends React.Component {
             .catch((error) => {
                 console.log(error);
             });
+            
     }
 
     render() {
