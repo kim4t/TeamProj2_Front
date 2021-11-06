@@ -37,7 +37,7 @@ export default function TimeSheetTable(props) {
     const [haveDefault, sethaveDefault] = useState(true);
     const [defaultTable, setDefaultTable] = useState();
     const [tableUnloaded, setTableUnloaded] = useState(true);
-    const [approved, setApproved] = useState(false);
+    const [approved, setApproved] = useState("false");
     
    // const [floatCount, setFloatCount] = useState(0);
 
@@ -213,7 +213,11 @@ function saveWeek(event) {
     if (isComplete) {
         submissionStatus = "Completed";
     }
-    var approvalStatus = approved;
+    var approvalStatus = "Not Available";
+    if (approved) {
+        approvalStatus = "Approved";
+    }
+    
     var comment = floatCount + " Floating Day Used, " + vacationCount + " Vacation used";
 
     var summaryObj = {id,user, weekEnding, totalHours, submissionStatus, approvalStatus, comment};
