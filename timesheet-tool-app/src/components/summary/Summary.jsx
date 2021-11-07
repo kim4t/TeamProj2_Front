@@ -70,8 +70,8 @@ class Summary extends React.Component {
                                 <td>{summ.approvalStatus}</td>
                                 <td>
                                     {summ.approvalStatus === 'Approved' ? 
-                                        (<Button variant="outline-secondary" onClick={() => this.handleViewAndEdit(index)}>View</Button>) : 
-                                        (<Button variant="outline-secondary" onClick={() => this.handleViewAndEdit(index)}>Edit</Button>)}
+                                        (<Button variant="outline-secondary" style={{ display: "inline-block", width: '100%', height: '100%', float:'right'}}onClick={() => this.handleViewAndEdit(index)}>View</Button>) : 
+                                        (<Button variant="outline-secondary" style={{ display: "inline-block", width: '100%', height: '100%', float:'right'}} onClick={() => this.handleViewAndEdit(index)}>Edit</Button>)}
                                 </td>
                                 <td>{summ.comment}</td>
                             </tr>
