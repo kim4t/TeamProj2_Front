@@ -37,7 +37,7 @@ export default function TimeSheetTable(props) {
     const [haveDefault, sethaveDefault] = useState(true);
     const [defaultTable, setDefaultTable] = useState();
     const [tableUnloaded, setTableUnloaded] = useState(true);
-    const [approved, setApproved] = useState("false");
+    const [approved, setApproved] = useState(false);
     
    // const [floatCount, setFloatCount] = useState(0);
 
